@@ -18,6 +18,8 @@ class PrefixeModel extends Model
         'actif',
         'est_operateur_principal',
         'commission_pourcentage',
+        'est_operateur_principal', // V2 : 1 = notre opérateur, 0 = autre opérateur
+        'commission_pourcentage',  // V2 : uniquement pertinent si est_operateur_principal = 0
     ];
 
     protected $useTimestamps = false;
@@ -25,6 +27,8 @@ class PrefixeModel extends Model
     protected $validationRules = [
         'prefixe' => 'required|is_unique[prefixes.prefixe,id,{id}]|max_length[10]',
         'actif'   => 'permit_empty|in_list[0,1]',
+        'prefixe'                 => 'required|is_unique[prefixes.prefixe,id,{id}]|max_length[10]',
+        'actif'                   => 'permit_empty|in_list[0,1]',
         'est_operateur_principal' => 'permit_empty|in_list[0,1]',
         'commission_pourcentage'  => 'permit_empty|decimal|greater_than_equal_to[0]',
     ];
@@ -74,9 +78,34 @@ class PrefixeModel extends Model
                       ->findAll() as $prefixe) {
             if (str_starts_with($numero, $prefixe['prefixe'])) {
                 return $prefixe;
+    /**
+     * Liste des préfixes "autres opérateurs" actifs (est_operateur_principal = 0).
+     */
+    public function getAutresOperateurs(): array
+    {
+        return $this->where('actif', 1)
+                    ->where('est_operateur_principal', 0)
+                    ->orderBy('prefixe', 'ASC')
+                    ->findAll();
+    }
+
+    /**
+     * Retrouve le préfixe "autre opérateur" correspondant à un numéro de téléphone
+     * (contrat commun V2). Utilisé par calculerFraisTransfert() pour savoir si une
+     * commission externe doit s'appliquer.
+     *
+     * @return array|null Le préfixe (avec sa commission_pourcentage), ou null si le
+     *                     numéro appartient à notre réseau (ou à aucun préfixe connu).
+     */
+    public function getAutreOperateur(string $numero): ?array
+    {
+        foreach ($this->getAutresOperateurs() as $p) {
+            if (str_starts_with($numero, $p['prefixe'])) {
+                return $p;
             }
         }
 
         return null;
     }
+}
 }

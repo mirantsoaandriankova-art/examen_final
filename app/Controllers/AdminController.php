@@ -36,68 +36,72 @@ class AdminController extends BaseController
             'situationOperateurs'  => $this->transactionModel->getSituationOperateurs(),
             'comptes'              => $this->compteModel->getAllClients(),
         ];
+        $transactionModel = new TransactionModel();
+        $compteModel      = new CompteModel();
+
+        $data['gainsParOperateur'] = $transactionModel->getGainsParOperateur();
+        $data['montantsAEnvoyer']  = $transactionModel->getMontantsAEnvoyerParOperateur();
+        $data['comptes']           = $compteModel->getAllClients();
 
         return view('admin/Dashboard', $data);
     }
 
-    // =========================================================
-    // PREFIXES
-    // =========================================================
+    // ====================== PREFIXES ======================
 
-    /**
-     * GET /admin/prefixes
-     */
     public function prefixes()
     {
-        $data = [
-            'prefixes' => $this->prefixeModel->orderBy('prefixe', 'ASC')->findAll(),
-        ];
+        $prefixeModel = new PrefixeModel();
+        $data['prefixes'] = $prefixeModel->getActifs(); // ou une méthode getAll() si tu veux voir les inactifs aussi
 
         return view('admin/Prefixes', $data);
     }
 
-    /**
-     * POST /admin/prefixes/store
-     */
     public function storePrefixe()
     {
+        $prefixeModel = new PrefixeModel();
+
         $data = [
             'prefixe'     => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
             'actif'       => $this->request->getPost('actif') ? 1 : 0,
             'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
             'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
+            'prefixe'                => $this->request->getPost('prefixe'),
+            'description'            => $this->request->getPost('description'),
+            'actif'                  => $this->request->getPost('actif') ?? 1,
+            'est_operateur_principal'=> $this->request->getPost('est_operateur_principal') ?? 1,
+            'commission_pourcentage' => $this->request->getPost('commission_pourcentage') ?? 0,
         ];
 
-        if (! $this->prefixeModel->insert($data)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $this->prefixeModel->errors());
+        if ($prefixeModel->insert($data)) {
+            return redirect()->to('/admin/prefixes')->with('success', 'Préfixe ajouté avec succès.');
         }
 
-        return redirect()->to('/admin/prefixes')
-            ->with('success', 'Préfixe ajouté avec succès.');
+        return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout du préfixe.');
     }
 
-    /**
-     * POST /admin/prefixes/update/{id}
-     */
     public function updatePrefixe($id)
     {
+        $prefixeModel = new PrefixeModel();
+
         $data = [
             'prefixe'     => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
             'actif'       => $this->request->getPost('actif') ? 1 : 0,
             'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
             'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
+            'prefixe'                => $this->request->getPost('prefixe'),
+            'description'            => $this->request->getPost('description'),
+            'actif'                  => $this->request->getPost('actif') ?? 1,
+            'est_operateur_principal'=> $this->request->getPost('est_operateur_principal') ?? 1,
+            'commission_pourcentage' => $this->request->getPost('commission_pourcentage') ?? 0,
         ];
 
-        if (! $this->prefixeModel->update($id, $data)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $this->prefixeModel->errors());
+        if ($prefixeModel->update($id, $data)) {
+            return redirect()->to('/admin/prefixes')->with('success', 'Préfixe mis à jour avec succès.');
         }
 
-        return redirect()->to('/admin/prefixes')
-            ->with('success', 'Préfixe modifié avec succès.');
+        return redirect()->back()->withInput()->with('error', 'Erreur lors de la mise à jour.');
     }
 
     /**

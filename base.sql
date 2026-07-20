@@ -1,12 +1,27 @@
 -- =============================================
--- SCHEMA BASE DE DONNÉES - MOBILE MONEY v1
+-- SCHEMA BASE DE DONNÉES - MOBILE MONEY v2
 -- Base : examenfinals4.db
 -- =============================================
 
 PRAGMA foreign_keys = ON;
 
--- 1. Préfixes de l'opérateur (validation du format du numéro uniquement)
-CREATE TABLE IF NOT EXISTS prefixes (
+-- =============================================
+-- SUPPRESSION DES TABLES EXISTANTES 
+-- =============================================
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS baremes_frais;
+DROP TABLE IF EXISTS types_operation;
+DROP TABLE IF EXISTS prefixes;
+DROP TABLE IF EXISTS comptes;
+
+DROP VIEW IF EXISTS vue_gains_par_type;
+
+-- =============================================
+-- CRÉATION DES TABLES V2
+-- =============================================
+
+-- 1. Préfixes
+CREATE TABLE prefixes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     prefixe TEXT NOT NULL UNIQUE,
     description TEXT,
@@ -16,29 +31,27 @@ CREATE TABLE IF NOT EXISTS prefixes (
 );
 
 -- 2. Types d'opérations
-CREATE TABLE IF NOT EXISTS types_operation (
+CREATE TABLE types_operation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT NOT NULL UNIQUE,                  -- depot | retrait | transfert
+    code TEXT NOT NULL UNIQUE,
     libelle TEXT NOT NULL,
     frais_applicable INTEGER NOT NULL DEFAULT 1 CHECK (frais_applicable IN (0, 1))
 );
 
--- 3. Barèmes de frais applicables au dépôt, retrait et transfert
-CREATE TABLE IF NOT EXISTS baremes_frais (
+-- 3. Barèmes de frais
+CREATE TABLE baremes_frais (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
     montant_min REAL NOT NULL,
-    montant_max REAL,                            -- NULL = illimité
+    montant_max REAL,
     frais REAL NOT NULL,
-    FOREIGN KEY (type_operation_id) REFERENCES types_operation(id)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE,
+    FOREIGN KEY (type_operation_id) REFERENCES types_operation(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CHECK (montant_max IS NULL OR montant_max > montant_min),
     CHECK (frais >= 0)
 );
 
--- 4. Comptes (clients ET admin)
-CREATE TABLE IF NOT EXISTS comptes (
+-- 4. Comptes
+CREATE TABLE comptes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     telephone TEXT NOT NULL UNIQUE,
     nom TEXT,
@@ -48,11 +61,8 @@ CREATE TABLE IF NOT EXISTS comptes (
     CHECK (solde >= 0)
 );
 
--- 5. Transactions : une ligne = un mouvement sur UN compte
---    Un transfert = 2 lignes liées (débit émetteur + crédit destinataire via compte_lie_id)
---    compte_lie_id n'est PAS forcément le "receveur" : c'est juste l'autre compte du transfert,
---    c'est "sens" (credit/debit) qui indique qui paie et qui reçoit sur chaque ligne.
-CREATE TABLE IF NOT EXISTS transactions (
+-- 5. Transactions (V2 complète)
+CREATE TABLE transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     compte_id INTEGER NOT NULL,
     type_operation_id INTEGER NOT NULL,
@@ -60,40 +70,34 @@ CREATE TABLE IF NOT EXISTS transactions (
     frais REAL NOT NULL DEFAULT 0,
     solde_apres REAL NOT NULL,
     sens TEXT NOT NULL CHECK (sens IN ('credit', 'debit')),
-    compte_lie_id INTEGER,                       -- NULL sauf pour un transfert
+    compte_lie_id INTEGER,
     prefixe_id INTEGER,
-    commission REAL NOT NULL DEFAULT 0 CHECK (commission >= 0),
+    commission REAL NOT NULL DEFAULT 0,
     frais_inclus INTEGER NOT NULL DEFAULT 0 CHECK (frais_inclus IN (0, 1)),
     groupe_envoi_id TEXT,
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (compte_id) REFERENCES comptes(id)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE,
-    FOREIGN KEY (compte_lie_id) REFERENCES comptes(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    FOREIGN KEY (prefixe_id) REFERENCES prefixes(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    FOREIGN KEY (type_operation_id) REFERENCES types_operation(id)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE,
+    
+    FOREIGN KEY (compte_id) REFERENCES comptes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (compte_lie_id) REFERENCES comptes(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (prefixe_id) REFERENCES prefixes(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (type_operation_id) REFERENCES types_operation(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    
     CHECK (montant > 0),
     CHECK (frais >= 0),
+    CHECK (commission >= 0),
     CHECK (solde_apres >= 0)
 );
 
--- Index pour historique client / admin
-CREATE INDEX IF NOT EXISTS idx_transactions_compte ON transactions(compte_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_compte_lie ON transactions(compte_lie_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type_operation_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_prefixe ON transactions(prefixe_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_groupe_envoi ON transactions(groupe_envoi_id);
-CREATE INDEX IF NOT EXISTS idx_baremes_type ON baremes_frais(type_operation_id);
+-- Index utiles
+CREATE INDEX idx_transactions_compte ON transactions(compte_id);
+CREATE INDEX idx_transactions_compte_lie ON transactions(compte_lie_id);
+CREATE INDEX idx_transactions_prefixe ON transactions(prefixe_id);
+CREATE INDEX idx_transactions_type ON transactions(type_operation_id);
+CREATE INDEX idx_baremes_type ON baremes_frais(type_operation_id);
 
--- Vue : gains totaux par type d'opération (dashboard admin)
-CREATE VIEW IF NOT EXISTS vue_gains_par_type AS
-SELECT
+-- Vue gains par type
+CREATE VIEW vue_gains_par_type AS
+SELECT 
     t.id AS type_operation_id,
     t.code AS type_code,
     t.libelle AS type_libelle,
@@ -104,66 +108,68 @@ LEFT JOIN transactions tr ON tr.type_operation_id = t.id
 GROUP BY t.id, t.code, t.libelle;
 
 -- =============================================
--- DONNÉES INITIALES
+-- DONNÉES INITIALES V2
 -- =============================================
 
 -- Préfixes
-INSERT OR IGNORE INTO prefixes (prefixe, description, actif, est_operateur_principal, commission_pourcentage) VALUES
-('033', 'Opérateur A', 1, 1, 0),
-('037', 'Opérateur B', 1, 1, 0),
-('032', 'Opérateur externe C', 1, 0, 2),
-('031', 'Opérateur externe D', 1, 0, 3);
+INSERT INTO prefixes (prefixe, description, actif, est_operateur_principal, commission_pourcentage) VALUES
+('033', 'Opérateur A (Principal)', 1, 1, 0),
+('037', 'Opérateur B (Principal)', 1, 1, 0),
+('032', 'MVola (Autre Opérateur)', 1, 0, 10),
+('031', 'Airtel Money (Autre Opérateur)', 1, 0, 8);
 
--- Types d'opérations (dépôt, retrait et transfert avec frais)
-INSERT OR IGNORE INTO types_operation (code, libelle, frais_applicable) VALUES
+-- Types d'opérations
+INSERT INTO types_operation (code, libelle, frais_applicable) VALUES
 ('depot', 'Dépôt d''argent', 1),
 ('retrait', 'Retrait d''argent', 1),
 ('transfert', 'Transfert d''argent', 1);
 
--- Utilise une sous-requête sur "code" pour ne pas dépendre de l'ordre d'insertion des id
-INSERT OR IGNORE INTO baremes_frais (type_operation_id, montant_min, montant_max, frais)
+-- Barèmes de frais (dépôt, retrait, transfert)
+INSERT INTO baremes_frais (type_operation_id, montant_min, montant_max, frais)
+-- Dépôt
+SELECT id, 100, 1000, 20 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 1001, 5000, 20 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 5001, 10000, 40 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 10001, 25000, 100 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 25001, 50000, 150 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 50001, 100000, 250 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 100001, 250000, 400 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 250001, 500000, 600 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 500001, 1000000, 800 FROM types_operation WHERE code = 'depot' UNION ALL
+SELECT id, 1000001, NULL, 1000 FROM types_operation WHERE code = 'depot'
+UNION ALL
+-- Retrait
+SELECT id, 100, 1000, 50 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 1001, 5000, 50 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 5001, 10000, 100 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 10001, 25000, 200 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 25001, 50000, 400 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 50001, 100000, 800 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 100001, 250000, 1500 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 250001, 500000, 2500 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 500001, 1000000, 3000 FROM types_operation WHERE code = 'retrait' UNION ALL
+SELECT id, 1000001, NULL, 5000 FROM types_operation WHERE code = 'retrait'
+UNION ALL
+-- Transfert
+SELECT id, 100, 1000, 30 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 1001, 5000, 30 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 5001, 10000, 60 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 10001, 25000, 120 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 25001, 50000, 250 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 50001, 100000, 500 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 100001, 250000, 900 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 250001, 500000, 1500 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 500001, 1000000, 2000 FROM types_operation WHERE code = 'transfert' UNION ALL
+SELECT id, 1000001, NULL, 3000 FROM types_operation WHERE code = 'transfert';
 
--- Dépôt (frais réduits)
-SELECT id, 100, 1000, 20 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 1001, 5000, 20 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 5001, 10000, 40 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 10001, 25000, 100 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 25001, 50000, 150 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 50001, 100000, 250 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 100001, 250000, 400 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 250001, 500000, 600 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 500001, 1000000, 800 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 1000001, NULL, 1000 FROM types_operation WHERE code = 'depot'
-
--- Retrait (frais les plus élevés)
-UNION ALL SELECT id, 100, 1000, 50 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 1001, 5000, 50 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 5001, 10000, 100 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 10001, 25000, 200 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 25001, 50000, 400 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 50001, 100000, 800 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 100001, 250000, 1500 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 250001, 500000, 2500 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 500001, 1000000, 3000 FROM types_operation WHERE code = 'retrait'
-UNION ALL SELECT id, 1000001, NULL, 5000 FROM types_operation WHERE code = 'retrait'
-
--- Transfert (intermédiaire entre dépôt et retrait)
-UNION ALL SELECT id, 100, 1000, 30 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 1001, 5000, 30 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 5001, 10000, 60 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 10001, 25000, 120 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 25001, 50000, 250 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 50001, 100000, 500 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 100001, 250000, 900 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 250001, 500000, 1500 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 500001, 1000000, 2000 FROM types_operation WHERE code = 'transfert'
-UNION ALL SELECT id, 1000001, NULL, 3000 FROM types_operation WHERE code = 'transfert';
-
--- Comptes de test (login = numéro de téléphone existant, pas d'inscription)
-INSERT OR IGNORE INTO comptes (telephone, nom, solde, role) VALUES
+-- Comptes de test
+INSERT INTO comptes (telephone, nom, solde, role) VALUES
 ('0331234567', 'Rakoto Jean', 500000, 'client'),
 ('0372345678', 'Rasoa Marie', 250000, 'client'),
 ('0339999999', 'Randria Paul', 10000, 'client'),
 ('0323456789', 'Client opérateur C', 100000, 'client'),
 ('0314567890', 'Client opérateur D', 100000, 'client'),
 ('0330000000', 'Administrateur', 0, 'admin');
+
+-- Message de confirmation
+SELECT '=== Base de données Mobile Money V2 initialisée avec succès ===' AS message;
