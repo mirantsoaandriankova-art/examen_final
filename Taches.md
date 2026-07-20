@@ -13,7 +13,7 @@
 - Les **frais s'appliquent uniquement sur le retrait et le transfert**. Le dépôt est **sans frais**.
 - Pour un **transfert**, les frais sont prélevés sur le compte émetteur (débit = montant + frais). Le destinataire reçoit le montant net, sans frais.
 - Le retrait et le transfert doivent vérifier que `solde >= montant + frais` avant toute exécution.
-- Login : recherche du compte par numéro de téléphone existant dans `base.db`. Pas de création de compte à la volée (pas d'inscription).
+- Login : recherche du compte par numéro de téléphone existant dans `examenfinals4.db`. Pas de création de compte à la volée (pas d'inscription).
 - Les préfixes valides (ex : 033, 037) servent à valider le format du numéro, pas à créer un compte.
 
 ---
@@ -33,7 +33,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 ## Travaux communs
 
 - [ ] Initialiser le projet CodeIgniter 4 (`composer create-project codeigniter4/appstarter`)
-- [ ] **`app/Config/Database.php`** — driver `SQLite3`, base pointant vers `writable/base.db`
+- [ ] **`app/Config/Database.php`** — driver `SQLite3`, base pointant vers `writable/examenfinals4.db`
 - [ ] **`script.sql`** (racine, rempli par ETU004190) — schéma complet + données initiales
 - [ ] **`app/Views/layout/app.php`** — header/nav Bootstrap conditionnel selon `session('role')` (menu client vs menu admin), footer, includes CSS/JS communs
 - [ ] **`public/assets/css/style.css`** — variables de couleurs, breakpoints mobile-first
@@ -258,5 +258,5 @@ public/
     css/style.css               # commun
     js/client.js                # ETU003929
 script.sql                      # ETU004190 — création des tables + données initiales
-base.db                         # généré à partir de script.sql
+examenfinals4.db                         # généré à partir de script.sql
 ```
