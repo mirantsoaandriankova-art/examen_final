@@ -1,9 +1,9 @@
 <?php
-
+ 
 namespace App\Models;
-
+ 
 use CodeIgniter\Model;
-
+ 
 class TransactionModel extends Model
 {
     protected $table            = 'transactions';
@@ -11,7 +11,7 @@ class TransactionModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-
+ 
     protected $allowedFields = [
         'compte_id',
         'type_operation_id',
@@ -19,22 +19,30 @@ class TransactionModel extends Model
         'frais',
         'solde_apres',
         'sens',
-        'compte_lie_id', // NULL sauf transfert ; ce n'est pas forcément le "receveur", voir sens
+        'compte_lie_id',
+        'prefixe_id',      // V2 : renseigné seulement si transfert vers un autre opérateur
+        'commission',      // V2 : commission externe (0 si transfert interne, dépôt, retrait)
+        'frais_inclus',    // V2 : 0 = frais en plus (défaut), 1 = frais inclus dans le montant saisi
+        'groupe_envoi_id', // V2 : regroupe les lignes d'un même envoi multiple, null sinon
     ];
-
+ 
     // date_operation a un DEFAULT CURRENT_TIMESTAMP côté SQLite
     protected $useTimestamps = false;
-
+ 
     protected $validationRules = [
         'compte_id'         => 'required|integer',
         'type_operation_id' => 'required|integer',
         'montant'           => 'required|decimal|greater_than[0]',
         'frais'             => 'permit_empty|decimal|greater_than_equal_to[0]',
         'solde_apres'       => 'required|decimal|greater_than_equal_to[0]',
-        'sens'            => 'required|in_list[credit,debit]',
-        'compte_lie_id'   => 'permit_empty|integer',
+        'sens'              => 'required|in_list[credit,debit]',
+        'compte_lie_id'     => 'permit_empty|integer',
+        'prefixe_id'        => 'permit_empty|integer',
+        'commission'        => 'permit_empty|decimal|greater_than_equal_to[0]',
+        'frais_inclus'      => 'permit_empty|in_list[0,1]',
+        'groupe_envoi_id'   => 'permit_empty|max_length[50]',
     ];
-
+ 
     protected $skipValidation = false;
 
     /**
@@ -91,6 +99,58 @@ class TransactionModel extends Model
         return $this->select('types_operation.code as type_code, types_operation.libelle as type_libelle, SUM(transactions.frais) as total_frais, COUNT(transactions.id) as nombre_operations')
                     ->join('types_operation', 'types_operation.id = transactions.type_operation_id')
                     ->groupBy('transactions.type_operation_id')
+                    ->findAll();
+    }
+        /**
+     * Gains (frais + commission) séparés en 2 blocs (contrat commun V2) :
+     *  - 'principal' : total sur les opérations internes (prefixe_id IS NULL)
+     *  - 'externes'  : détail par autre opérateur
+     *
+     * IMPORTANT : Le "gain réel" de l'entreprise = seulement les frais du barème.
+     * La commission est collectée mais reversée à l'autre opérateur → elle n'est pas un gain.
+     */
+    public function getGainsParOperateur(): array
+    {
+        // Notre opérateur (interne)
+        $principal = $this->select('SUM(frais) as total_frais, SUM(commission) as total_commission, COUNT(id) as nombre_operations')
+                           ->where('prefixe_id', null)  // ou IS NULL selon le driver
+                           ->first();
+
+        $principal['total_gains'] = (float) ($principal['total_frais'] ?? 0);
+        // On peut garder total_commission pour info, mais total_gains = frais uniquement
+
+        // Autres opérateurs
+        $externes = $this->select('prefixes.id as prefixe_id, prefixes.description as operateur, prefixes.prefixe, 
+                                   SUM(transactions.frais) as total_frais, 
+                                   SUM(transactions.commission) as total_commission, 
+                                   COUNT(transactions.id) as nombre_operations')
+                          ->join('prefixes', 'prefixes.id = transactions.prefixe_id')
+                          ->where('transactions.prefixe_id IS NOT NULL')
+                          ->groupBy('transactions.prefixe_id')
+                          ->findAll();
+
+        foreach ($externes as &$e) {
+            $e['total_gains'] = (float) ($e['total_frais'] ?? 0);  // ← Correction ici : seulement les frais
+        }
+
+        return [
+            'principal' => $principal,
+            'externes'  => $externes,
+        ];
+    }
+ 
+    /**
+     * Montants principaux (hors frais/commission) transférés vers chaque autre opérateur
+     * (contrat commun V2). C'est le montant à reverser à cet opérateur, pas un gain.
+     * Ne compte que les sorties (sens = 'debit') vers un préfixe externe.
+     */
+    public function getMontantsAEnvoyerParOperateur(): array
+    {
+        return $this->select('prefixes.id as prefixe_id, prefixes.description as operateur, prefixes.prefixe, SUM(transactions.montant) as total_a_envoyer, COUNT(transactions.id) as nombre_operations')
+                    ->join('prefixes', 'prefixes.id = transactions.prefixe_id')
+                    ->where('transactions.sens', 'debit')
+                    ->where('transactions.prefixe_id IS NOT NULL')
+                    ->groupBy('transactions.prefixe_id')
                     ->findAll();
     }
 }

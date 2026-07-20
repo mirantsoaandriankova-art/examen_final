@@ -369,3 +369,218 @@ in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
  7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
  8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
  9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:17:32 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(41): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:22:46 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(41): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:22:58 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(41): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:10 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:11 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:12 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:54 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:54 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:29:58 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:30:35 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:30:35 --> TypeError: CodeIgniter\HTTP\Request::fetchGlobal(): Argument #3 ($filter) must be of type ?int, false given, called in /home/maria/s4/SI/examen_final/system/HTTP/IncomingRequest.php on line 583
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/RequestTrait.php on line 262.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(583): CodeIgniter\HTTP\Request->fetchGlobal()
+ 2 APPPATH/Controllers/Api/FraisController.php(15): CodeIgniter\HTTP\IncomingRequest->getPost()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:37:42 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(43): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:37:43 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(43): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:38:07 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/dashboard.php"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/AdminController.php(43): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:39:57 --> ErrorException: Undefined variable $gains
+[Method: GET, Route: admin]
+in APPPATH/Views/admin/Dashboard.php on line 15.
+ 1 APPPATH/Views/admin/Dashboard.php(15): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(240): include('/home/maria/s4/SI/examen_final/app/Views/admin/Dashboard.php')
+ 3 SYSTEMPATH/View/View.php(243): CodeIgniter\View\View->{closure:CodeIgniter\View\View::render():237}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/AdminController.php(41): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:39:58 --> ErrorException: Undefined variable $gains
+[Method: GET, Route: admin]
+in APPPATH/Views/admin/Dashboard.php on line 15.
+ 1 APPPATH/Views/admin/Dashboard.php(15): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(240): include('/home/maria/s4/SI/examen_final/app/Views/admin/Dashboard.php')
+ 3 SYSTEMPATH/View/View.php(243): CodeIgniter\View\View->{closure:CodeIgniter\View\View::render():237}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/AdminController.php(41): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
+CRITICAL - 2026-07-20 13:41:39 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\TransactionModel::getGainsParTypeOperation
+[Method: GET, Route: admin]
+in SYSTEMPATH/Model.php on line 761.
+ 1 APPPATH/Controllers/AdminController.php(40): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/maria/s4/SI/examen_final/public/index.php')
