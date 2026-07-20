@@ -1,0 +1,191 @@
+ERROR - 2026-07-20 09:30:08 --> Error connecting to the database: mysqli_sql_exception: No such file or directory in /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php:201
+Stack trace:
+#0 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php(201): mysqli->real_connect()
+#1 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#4 /home/mirantsoa/Documents/GitHub/examen_final/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/mirantsoa/Documents/GitHub/examen_final/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#6 /home/mirantsoa/Documents/GitHub/examen_final/app/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+#7 /home/mirantsoa/Documents/GitHub/examen_final/app/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+#8 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(951): App\Controllers\AuthController->login()
+#9 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#10 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#12 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#13 /home/mirantsoa/Documents/GitHub/examen_final/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#14 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: No such file or directory in /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php:231
+Stack trace:
+#0 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#3 /home/mirantsoa/Documents/GitHub/examen_final/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/mirantsoa/Documents/GitHub/examen_final/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#5 /home/mirantsoa/Documents/GitHub/examen_final/app/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+#6 /home/mirantsoa/Documents/GitHub/examen_final/app/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+#7 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(951): App\Controllers\AuthController->login()
+#8 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#11 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#12 /home/mirantsoa/Documents/GitHub/examen_final/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#13 {main}
+CRITICAL - 2026-07-20 09:30:08 --> CodeIgniter\Database\Exceptions\DatabaseException: Unable to connect to the database.
+Main connection [MySQLi]: No such file or directory
+[Method: POST, Route: login]
+in SYSTEMPATH/Database/BaseConnection.php on line 606.
+ 1 SYSTEMPATH/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(714): CodeIgniter\Model->doFirst()
+ 5 APPPATH/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+ 6 APPPATH/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AuthController->login()
+ 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ERROR - 2026-07-20 09:31:40 --> Error connecting to the database: mysqli_sql_exception: No such file or directory in /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php:201
+Stack trace:
+#0 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php(201): mysqli->real_connect()
+#1 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#4 /home/mirantsoa/Documents/GitHub/examen_final/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/mirantsoa/Documents/GitHub/examen_final/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#6 /home/mirantsoa/Documents/GitHub/examen_final/app/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+#7 /home/mirantsoa/Documents/GitHub/examen_final/app/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+#8 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(951): App\Controllers\AuthController->login()
+#9 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#10 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#12 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#13 /home/mirantsoa/Documents/GitHub/examen_final/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#14 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: No such file or directory in /home/mirantsoa/Documents/GitHub/examen_final/system/Database/MySQLi/Connection.php:231
+Stack trace:
+#0 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/mirantsoa/Documents/GitHub/examen_final/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#3 /home/mirantsoa/Documents/GitHub/examen_final/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/mirantsoa/Documents/GitHub/examen_final/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#5 /home/mirantsoa/Documents/GitHub/examen_final/app/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+#6 /home/mirantsoa/Documents/GitHub/examen_final/app/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+#7 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(951): App\Controllers\AuthController->login()
+#8 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /home/mirantsoa/Documents/GitHub/examen_final/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#11 /home/mirantsoa/Documents/GitHub/examen_final/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#12 /home/mirantsoa/Documents/GitHub/examen_final/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#13 {main}
+CRITICAL - 2026-07-20 09:31:40 --> CodeIgniter\Database\Exceptions\DatabaseException: Unable to connect to the database.
+Main connection [MySQLi]: No such file or directory
+[Method: POST, Route: login]
+in SYSTEMPATH/Database/BaseConnection.php on line 606.
+ 1 SYSTEMPATH/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(714): CodeIgniter\Model->doFirst()
+ 5 APPPATH/Models/CompteModel.php(43): CodeIgniter\BaseModel->first()
+ 6 APPPATH/Controllers/AuthController.php(41): App\Models\CompteModel->findByTelephone()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AuthController->login()
+ 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 09:36:12 --> Error: Class "Config\AuthFilter" not found
+[Method: GET, Route: admin]
+in SYSTEMPATH/Filters/Filters.php on line 299.
+ 1 SYSTEMPATH/Filters/Filters.php(239): CodeIgniter\Filters\Filters->createFilter()
+ 2 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore()
+ 3 SYSTEMPATH/CodeIgniter.php(465): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 09:36:32 --> Error: Class "Config\AuthFilter" not found
+[Method: GET, Route: admin]
+in SYSTEMPATH/Filters/Filters.php on line 299.
+ 1 SYSTEMPATH/Filters/Filters.php(239): CodeIgniter\Filters\Filters->createFilter()
+ 2 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore()
+ 3 SYSTEMPATH/CodeIgniter.php(465): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 09:37:06 --> Error: Class "Config\AuthFilter" not found
+[Method: GET, Route: client]
+in SYSTEMPATH/Filters/Filters.php on line 299.
+ 1 SYSTEMPATH/Filters/Filters.php(239): CodeIgniter\Filters\Filters->createFilter()
+ 2 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore()
+ 3 SYSTEMPATH/CodeIgniter.php(465): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:40:07 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:40:23 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:40:50 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:40:57 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:43:14 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 09:43:20 --> Error: Class "App\Models\PrefixeModel" not found
+[Method: GET, Route: admin]
+in APPPATH/Controllers/AdminController.php on line 21.
+ 1 SYSTEMPATH/CodeIgniter.php(921): App\Controllers\AdminController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(488): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')

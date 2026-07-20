@@ -36,7 +36,7 @@ class AdminController extends BaseController
             'comptes' => $this->compteModel->getAllClients(),
         ];
 
-        return view('admin/dashboard', $data);
+        return view('admin/Dashboard', $data);
     }
 
     // =========================================================
@@ -52,7 +52,7 @@ class AdminController extends BaseController
             'prefixes' => $this->prefixeModel->orderBy('prefixe', 'ASC')->findAll(),
         ];
 
-        return view('admin/prefixes', $data);
+        return view('admin/Prefixes', $data);
     }
 
     /**
@@ -142,7 +142,7 @@ class AdminController extends BaseController
             'typeSelected' => $typeCode,
         ];
 
-        return view('admin/baremes', $data);
+        return view('admin/Baremes', $data);
     }
 
     /**
@@ -211,7 +211,7 @@ class AdminController extends BaseController
             'comptes' => $this->compteModel->getAllClients(),
         ];
 
-        return view('admin/comptes', $data);
+        return view('admin/Comptes', $data);
     }
 
     /**
@@ -223,6 +223,6 @@ class AdminController extends BaseController
             'transactions' => $this->transactionModel->getAll(),
         ];
 
-        return view('admin/transactions', $data);
+        return view('admin/Transactions', $data);
     }
 }

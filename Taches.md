@@ -191,7 +191,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 **Heure 1 :**
 
-- ETU004190 → Initialisation + `script.sql` + Models
+- ETU004190 → Initialisation + `base.sql` + Models
 - ETU003929 → Layout + `AuthController` (login/logout) + Dashboard Client
 
 **Heure 2 :**
@@ -268,6 +268,6 @@ public/
   assets/
     css/style.css               # commun
     js/client.js                # ETU003929
-script.sql                      # ETU004190 — création des tables + données initiales
-examenfinals4.db                         # généré à partir de script.sql
+base.sql                      # ETU004190 — création des tables + données initiales
+examenfinals4.db                         # généré à partir de base.sql
 ```
