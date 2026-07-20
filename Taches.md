@@ -10,6 +10,7 @@
 
 ## Règles métier importantes (à respecter par les deux)
 
+- Pour un **dépôt**, les frais sont déduits du montant saisi : crédit du compte = `montant - frais`.
 - Pour un **transfert**, les frais sont prélevés sur le compte émetteur (débit = montant + frais). Le destinataire reçoit le montant net, sans frais.
 - Le retrait et le transfert doivent vérifier que `solde >= montant + frais` avant toute exécution.
 - Login : recherche du compte par numéro de téléphone existant dans `examenfinals4.db`. Pas de création de compte à la volée (pas d'inscription).
@@ -25,7 +26,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 | --------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
 | `CompteModel::findByTelephone(string $telephone): ?array`                 | `app/Models/CompteModel.php`       | Retrouve un compte pour le login                                           |
 | `TransactionModel::getByCompte(int $compteId, ?int $limit = null): array` | `app/Models/TransactionModel.php`  | Historique (dashboard = limit 5, historique = sans limite)                 |
-| `calculerFrais(string $typeOperationCode, float $montant): array`         | `app/Helpers/operation_helper.php` | Retourne`['frais' => float, 'total' => float]`, `frais = 0` si dépôt |
+| `calculerFrais(string $typeOperationCode, float $montant): array`         | `app/Helpers/operation_helper.php` | Retourne `['frais' => float, 'total' => float]` selon le barème |
 
 ---
 
@@ -62,7 +63,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
   - Méthodes :
     - `findByCode(string $code): ?array`
     - `getAll(): array`
-- [X] **`app/Models/BaremeFraisModel.php`** — barèmes par tranche, appliqués au retrait et au transfert uniquement
+- [X] **`app/Models/BaremeFraisModel.php`** — barèmes par tranche, appliqués au dépôt, retrait et transfert
 
   - Table `baremes_frais` : `id`, `type_operation_id`, `montant_min`, `montant_max`, `frais`
   - Méthodes :
@@ -93,7 +94,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
   - Retourne `['frais' => float, 'total' => float]`
   - Enchaîne `TypeOperationModel::findByCode()` puis `BaremeFraisModel::getTranche()`
-  - Retourne `frais = 0` directement si `frais_applicable = 0` (cas dépôt)
+  - Retourne `frais = 0` directement si `frais_applicable = 0`
   - Déclaré dans `app/Config/Autoload.php` (`$autoload['helper'] = ['operation']`) pour être utilisable partout, y compris par le contrôleur client
 - [X] **`app/Controllers/Api/FraisController.php`** — endpoint AJAX consommé par `previewFrais()` côté frontend
 
@@ -155,8 +156,8 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 - [ ] **`ClientController::depot()`** (GET, formulaire) / **`storeDepot()`** (POST)
   - Valide `montant > 0`
-  - Aucun frais (`frais = 0`)
-  - `CompteModel::crediter($compteId, $montant)` puis `TransactionModel::enregistrer([...])`
+  - Appelle `calculerFrais('depot', $montant)` ; le compte est crédité de `montant - frais`
+  - `CompteModel::crediter($compteId, $montant)` puis `TransactionModel::enregistrer([...])` avec les frais
 - [ ] **`ClientController::retrait()`** (GET) / **`storeRetrait()`** (POST)
   - Appelle le helper backend `calculerFrais('retrait', $montant)`
   - Vérifie `solde >= montant + frais`, sinon message d'erreur
@@ -214,7 +215,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 - [X] Login automatique par numéro de téléphone (pas d'inscription)
 - [X] Gestion des préfixes opérateurs
-- [X] Barèmes de frais configurables, applicables **au retrait et au transfert uniquement** (dépôt sans frais)
+- [X] Barèmes de frais configurables, applicables **au dépôt, retrait et transfert**
 - [X] Dépôt, Retrait et Transfert fonctionnels
 - [X] Historique complet par client et global (opérateur)
 - [X] Dashboard Opérateur (situation des gains + comptes clients)

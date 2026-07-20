@@ -213,3 +213,159 @@ in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
  7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
  8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
  9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:27 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:28 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:29 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:29 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:31 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 10:21:31 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:06:44 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:06:44 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:06:45 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:13:34 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:13:34 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:13:36 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')
+CRITICAL - 2026-07-20 11:13:39 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/calculer-frais]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 406.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/FraisController.php(20): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Api\FraisController->calculer()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 9 SYSTEMPATH/rewrite.php(44): require_once('/home/mirantsoa/Documents/GitHub/examen_final/public/index.php')

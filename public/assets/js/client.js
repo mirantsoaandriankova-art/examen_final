@@ -106,13 +106,6 @@ function previewFrais(montant, typeOperation) {
     return;
   }
 
-  // Le dépôt est sans frais : pas besoin d'appeler l'API
-  if (typeOperation === 'depot') {
-    fraisEl.textContent = '0 Ar';
-    totalEl.textContent = formatMontant(montantVal) + ' Ar';
-    return;
-  }
-
   fetch('/api/calculer-frais', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -121,7 +114,10 @@ function previewFrais(montant, typeOperation) {
     .then(function (res) { return res.json(); })
     .then(function (data) {
       fraisEl.textContent = formatMontant(data.frais) + ' Ar';
-      totalEl.textContent = formatMontant(data.total) + ' Ar';
+      const montantAffiche = typeOperation === 'depot'
+        ? montantVal - data.frais
+        : data.total;
+      totalEl.textContent = formatMontant(montantAffiche) + ' Ar';
     })
     .catch(function () {
       fraisEl.textContent = '—';
@@ -156,15 +152,13 @@ function initOperationSubmit() {
       return;
     }
 
-    // Le dépôt ne nécessite pas de confirmation
-    if (type === 'depot') return;
-
     if (form.dataset.confirmed === 'true') return;
 
     e.preventDefault();
 
     const montant = formatMontant(parseFloat(montantInput.value));
-    let message = 'Confirmez-vous ' + (type === 'retrait' ? 'le retrait' : 'le transfert') + ' de ' + montant + ' Ar ?';
+    let operation = type === 'depot' ? 'le dépôt' : type === 'retrait' ? 'le retrait' : 'le transfert';
+    let message = 'Confirmez-vous ' + operation + ' de ' + montant + ' Ar ?';
 
     if (type === 'transfert' && destInput) {
       message += ' Vers le ' + destInput.value + '.';
