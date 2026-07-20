@@ -36,3 +36,31 @@ if (! function_exists('calculerFrais')) {
         ];
     }
 }
+
+if (! function_exists('calculerFraisTransfert')) {
+    /**
+     * Calcule un transfert interne ou externe, avec frais inclus ou ajoutés.
+     * Les transferts externes n'appliquent pas le barème de retrait : seule la
+     * commission configurée pour l'autre opérateur est retenue.
+     *
+     * @param array|null $autreOperateur Préfixe externe ou null pour notre opérateur
+     * @return array{frais: float, commission: float, montant_debite: float, montant_recu: float}
+     */
+    function calculerFraisTransfert(float $montant, ?array $autreOperateur, bool $fraisInclus): array
+    {
+        $frais = $autreOperateur === null
+            ? calculerFrais('transfert', $montant)['frais']
+            : 0.0;
+        $commission = $autreOperateur === null
+            ? 0.0
+            : round($montant * (float) $autreOperateur['commission_pourcentage'] / 100, 2);
+        $coutTotal = $frais + $commission;
+
+        return [
+            'frais'           => $frais,
+            'commission'      => $commission,
+            'montant_debite'  => $fraisInclus ? $montant : $montant + $coutTotal,
+            'montant_recu'    => $fraisInclus ? $montant - $coutTotal : $montant,
+        ];
+    }
+}

@@ -3,20 +3,24 @@
 namespace App\Controllers;
 
 use App\Models\CompteModel;
+use App\Models\PrefixeModel;
 use App\Models\TransactionModel;
 use App\Models\TypeOperationModel;
+use RuntimeException;
 
 class ClientController extends BaseController
 {
     protected CompteModel $compteModel;
     protected TransactionModel $transactionModel;
     protected TypeOperationModel $typeOperationModel;
+    protected PrefixeModel $prefixeModel;
 
     public function __construct()
     {
         $this->compteModel        = new CompteModel();
         $this->transactionModel   = new TransactionModel();
         $this->typeOperationModel = new TypeOperationModel();
+        $this->prefixeModel       = new PrefixeModel();
 
         helper('operation'); // calculerFrais()
     }
@@ -191,7 +195,7 @@ class ClientController extends BaseController
     }
 
     // -------------------------------------------------
-    // TRANSFERT (avec frais, prélevés côté émetteur)
+    // TRANSFERT (frais ajoutés ou inclus)
     // -------------------------------------------------
 
     /**
@@ -213,6 +217,7 @@ class ClientController extends BaseController
         $compteId      = $this->compteId();
         $telephoneDest = trim((string) $this->request->getPost('telephone_destinataire'));
         $montant       = (float) $this->request->getPost('montant');
+        $fraisInclus   = (int) $this->request->getPost('frais_inclus') === 1;
 
         if ($montant <= 0) {
             session()->setFlashdata('error', 'Le montant doit être supérieur à 0.');
@@ -233,58 +238,199 @@ class ClientController extends BaseController
             return redirect()->to('/client/transfert');
         }
 
-        $result = calculerFrais('transfert', $montant);
-        $frais  = $result['frais'];
-        $total  = $result['total'];
+        $autreOperateur = $this->prefixeModel->getAutreOperateur($telephoneDest);
+        $result         = calculerFraisTransfert($montant, $autreOperateur, $fraisInclus);
 
-        if ($emetteur['solde'] < $total) {
+        if ($result['montant_recu'] <= 0) {
+            session()->setFlashdata('error', 'Le montant doit être supérieur aux frais et à la commission.');
+            return redirect()->to('/client/transfert');
+        }
+
+        if ($emetteur['solde'] < $result['montant_debite']) {
             session()->setFlashdata(
                 'error',
-                'Solde insuffisant pour ce transfert (montant + frais = ' . $this->formatMontant($total) . ' Ar).'
+                'Solde insuffisant pour ce transfert (montant débité = '
+                    . $this->formatMontant($result['montant_debite']) . ' Ar).'
             );
             return redirect()->to('/client/transfert');
         }
 
-        $type = $this->typeOperationModel->findByCode('transfert');
+        try {
+            $this->executerTransferts([[
+                'emetteur'        => $emetteur,
+                'destinataire'    => $destinataire,
+                'montant'         => $montant,
+                'calcul'          => $result,
+                'autre_operateur' => $autreOperateur,
+                'frais_inclus'    => $fraisInclus,
+            ]]);
+        } catch (RuntimeException $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/client/transfert');
+        }
 
-        // Débit émetteur : montant + frais
-        $this->compteModel->debiter($compteId, $total);
-        $soldeEmetteurApres = $this->compteModel->getSolde($compteId);
-
-        // Crédit destinataire : montant net, sans frais
-        $this->compteModel->crediter($destinataire['id'], $montant);
-        $soldeDestApres = $this->compteModel->getSolde($destinataire['id']);
-
-        // Écriture débit (émetteur), liée au compte destinataire
-        $this->transactionModel->enregistrer([
-            'compte_id'         => $compteId,
-            'type_operation_id' => $type['id'],
-            'montant'           => $montant,
-            'frais'             => $frais,
-            'solde_apres'       => $soldeEmetteurApres,
-            'sens'              => 'debit',
-            'compte_lie_id'     => $destinataire['id'],
-        ]);
-
-        // Écriture crédit (destinataire), liée au compte émetteur
-        $this->transactionModel->enregistrer([
-            'compte_id'         => $destinataire['id'],
-            'type_operation_id' => $type['id'],
-            'montant'           => $montant,
-            'frais'             => 0,
-            'solde_apres'       => $soldeDestApres,
-            'sens'              => 'credit',
-            'compte_lie_id'     => $compteId,
-        ]);
-
-        session()->set('solde', $soldeEmetteurApres);
+        $soldeApres = $this->compteModel->getSolde($compteId);
+        session()->set('solde', $soldeApres);
         session()->setFlashdata(
             'success',
             'Transfert de ' . $this->formatMontant($montant) . ' Ar vers ' . $destinataire['nom']
-                . ' effectué (frais : ' . $this->formatMontant($frais) . ' Ar).'
+                . ' effectué. Montant reçu : ' . $this->formatMontant($result['montant_recu'])
+                . ' Ar (frais : ' . $this->formatMontant($result['frais'])
+                . ' Ar, commission : ' . $this->formatMontant($result['commission']) . ' Ar).'
         );
 
         return redirect()->to('/client');
+    }
+
+    /**
+     * GET /client/envoi-multiple
+     */
+    public function envoiMultiple()
+    {
+        return view('client/envoi_multiple', [
+            'title'  => 'Envoi multiple — MobiMoney',
+            'compte' => $this->compteModel->find($this->compteId()),
+        ]);
+    }
+
+    /**
+     * POST /client/envoi-multiple
+     */
+    public function doEnvoiMultiple()
+    {
+        $compteId     = $this->compteId();
+        $montantTotal = (float) $this->request->getPost('montant_total');
+        $telephonesBruts = array_values(array_filter(array_map(
+            static fn ($telephone) => trim((string) $telephone),
+            (array) $this->request->getPost('telephones')
+        )));
+        $telephones = array_values(array_unique($telephonesBruts));
+
+        if ($montantTotal <= 0 || count($telephones) < 2 || count($telephones) !== count($telephonesBruts)) {
+            session()->setFlashdata('error', 'Saisissez un montant positif et au moins deux destinataires différents.');
+            return redirect()->to('/client/envoi-multiple');
+        }
+
+        $emetteur = $this->compteModel->find($compteId);
+        $part     = floor($montantTotal / count($telephones));
+        $reliquat = $montantTotal - ($part * count($telephones));
+        $transferts = [];
+        $totalDebite = 0.0;
+
+        foreach ($telephones as $index => $telephoneDest) {
+            if ($telephoneDest === $emetteur['telephone'] || ! $this->prefixeModel->isPrefixeValide($telephoneDest)) {
+                session()->setFlashdata('error', 'Un numéro destinataire est invalide ou correspond à votre propre compte.');
+                return redirect()->to('/client/envoi-multiple');
+            }
+
+            $destinataire = $this->compteModel->findByTelephone($telephoneDest);
+            if (! $destinataire) {
+                session()->setFlashdata('error', 'Le compte ' . $telephoneDest . ' est introuvable.');
+                return redirect()->to('/client/envoi-multiple');
+            }
+
+            $montantPart = $part + ($index === count($telephones) - 1 ? $reliquat : 0);
+            $autreOperateur = $this->prefixeModel->getAutreOperateur($telephoneDest);
+            $calcul = calculerFraisTransfert($montantPart, $autreOperateur, false);
+            $totalDebite += $calcul['montant_debite'];
+            $transferts[] = [
+                'emetteur'        => $emetteur,
+                'destinataire'    => $destinataire,
+                'montant'         => $montantPart,
+                'calcul'          => $calcul,
+                'autre_operateur' => $autreOperateur,
+                'frais_inclus'    => false,
+            ];
+        }
+
+        if ($emetteur['solde'] < $totalDebite) {
+            session()->setFlashdata('error', 'Solde insuffisant : le total à débiter est de ' . $this->formatMontant($totalDebite) . ' Ar.');
+            return redirect()->to('/client/envoi-multiple');
+        }
+
+        try {
+            $this->executerTransferts($transferts, bin2hex(random_bytes(8)));
+        } catch (RuntimeException $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/client/envoi-multiple');
+        }
+
+        session()->set('solde', $this->compteModel->getSolde($compteId));
+        session()->setFlashdata('success', 'Envoi multiple effectué vers ' . count($telephones) . ' destinataires.');
+
+        return redirect()->to('/client');
+    }
+
+    /**
+     * Applique un ou plusieurs transferts dans une unique transaction SQL.
+     *
+     * @param array<int, array<string, mixed>> $transferts
+     */
+    private function executerTransferts(array $transferts, ?string $groupeEnvoiId = null): void
+    {
+        $type = $this->typeOperationModel->findByCode('transfert');
+        if (! $type) {
+            throw new RuntimeException('Type d’opération transfert introuvable.');
+        }
+
+        $db = db_connect();
+        $db->transBegin();
+
+        try {
+            foreach ($transferts as $transfert) {
+                $emetteur = $transfert['emetteur'];
+                $destinataire = $transfert['destinataire'];
+                $calcul = $transfert['calcul'];
+                $autreOperateur = $transfert['autre_operateur'];
+
+                if (! $this->compteModel->debiter((int) $emetteur['id'], (float) $calcul['montant_debite'])
+                    || ! $this->compteModel->crediter((int) $destinataire['id'], (float) $calcul['montant_recu'])) {
+                    throw new RuntimeException('Impossible d’enregistrer le transfert.');
+                }
+
+                $soldeEmetteur = $this->compteModel->getSolde((int) $emetteur['id']);
+                $soldeDestinataire = $this->compteModel->getSolde((int) $destinataire['id']);
+
+                $debitEnregistre = $this->transactionModel->enregistrer([
+                    'compte_id'         => $emetteur['id'],
+                    'type_operation_id' => $type['id'],
+                    'montant'           => $transfert['montant'],
+                    'frais'             => $calcul['frais'],
+                    'commission'        => $calcul['commission'],
+                    'frais_inclus'      => $transfert['frais_inclus'] ? 1 : 0,
+                    'prefixe_id'        => $autreOperateur['id'] ?? null,
+                    'groupe_envoi_id'   => $groupeEnvoiId,
+                    'solde_apres'       => $soldeEmetteur,
+                    'sens'              => 'debit',
+                    'compte_lie_id'     => $destinataire['id'],
+                ]);
+                $creditEnregistre = $this->transactionModel->enregistrer([
+                    'compte_id'         => $destinataire['id'],
+                    'type_operation_id' => $type['id'],
+                    'montant'           => $calcul['montant_recu'],
+                    'frais'             => 0,
+                    'commission'        => 0,
+                    'frais_inclus'      => $transfert['frais_inclus'] ? 1 : 0,
+                    'groupe_envoi_id'   => $groupeEnvoiId,
+                    'solde_apres'       => $soldeDestinataire,
+                    'sens'              => 'credit',
+                    'compte_lie_id'     => $emetteur['id'],
+                ]);
+
+                if (! $debitEnregistre || ! $creditEnregistre) {
+                    throw new RuntimeException('Impossible d’enregistrer l’historique du transfert.');
+                }
+            }
+
+            if (! $db->transStatus()) {
+                throw new RuntimeException('Le transfert n’a pas pu être finalisé.');
+            }
+
+            $db->transCommit();
+        } catch (\Throwable $exception) {
+            $db->transRollback();
+            throw new RuntimeException($exception->getMessage());
+        }
     }
 
     // -------------------------------------------------

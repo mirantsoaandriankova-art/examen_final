@@ -15,12 +15,25 @@
         foreach ($gains as $g) {
             $totalGains += (float) $g['total_frais'];
         }
+        $totalCommissionsExternes = 0;
+        foreach ($situationOperateurs as $operateur) {
+            $totalCommissionsExternes += (float) $operateur['total_commission'];
+        }
     ?>
     <div class="col-12 col-md-3">
         <div class="card text-bg-dark h-100">
             <div class="card-body">
-                <div class="text-uppercase small opacity-75">Total des gains</div>
+                <div class="text-uppercase small opacity-75">Gains notre opérateur</div>
                 <div class="fs-3 fw-bold"><?= number_format($totalGains, 0, ',', ' ') ?> Ar</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+        <div class="card text-bg-warning h-100">
+            <div class="card-body">
+                <div class="text-uppercase small opacity-75">Commissions autres opérateurs</div>
+                <div class="fs-3 fw-bold"><?= number_format($totalCommissionsExternes, 0, ',', ' ') ?> Ar</div>
             </div>
         </div>
     </div>
@@ -36,6 +49,29 @@
             </div>
         </div>
     <?php endforeach; ?>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Montants à régulariser avec les autres opérateurs</div>
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Préfixe</th><th>Opérateur</th><th>Commission</th><th class="text-end">Montant à envoyer</th><th class="text-end">Transferts</th></tr></thead>
+            <tbody>
+                <?php foreach ($situationOperateurs as $operateur): ?>
+                    <tr>
+                        <td><?= esc($operateur['prefixe']) ?></td>
+                        <td><?= esc($operateur['description']) ?></td>
+                        <td><?= number_format((float) $operateur['commission_pourcentage'], 2, ',', ' ') ?> %</td>
+                        <td class="text-end"><?= number_format((float) $operateur['total_commission'], 0, ',', ' ') ?> Ar</td>
+                        <td class="text-end"><?= (int) $operateur['nombre_transferts'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($situationOperateurs)): ?>
+                    <tr><td colspan="5" class="text-center text-muted">Aucun transfert vers un autre opérateur.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Tableau des comptes clients -->

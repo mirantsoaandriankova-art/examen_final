@@ -33,6 +33,14 @@
                         <label class="form-label">Description</label>
                         <input type="text" name="description" class="form-control" placeholder="ex: Opérateur A">
                     </div>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" name="est_operateur_principal" value="1" class="form-check-input" id="principalNew" checked>
+                        <label class="form-check-label" for="principalNew">Notre opérateur</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Commission externe (%)</label>
+                        <input type="number" name="commission_pourcentage" class="form-control" min="0" step="0.01" value="0">
+                    </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" name="actif" value="1" class="form-check-input" id="actifNew" checked>
                         <label class="form-check-label" for="actifNew">Actif</label>
@@ -53,6 +61,8 @@
                         <tr>
                             <th>Préfixe</th>
                             <th>Description</th>
+                            <th>Opérateur</th>
+                            <th>Commission</th>
                             <th>Statut</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -70,6 +80,15 @@
                                 <td>
                                     <input form="<?= $formEditId ?>" type="text" name="description" value="<?= esc($p['description'] ?? '') ?>" class="form-control form-control-sm">
                                 </td>
+                                <td style="min-width:110px">
+                                    <div class="form-check form-switch">
+                                        <input form="<?= $formEditId ?>" type="checkbox" name="est_operateur_principal" value="1" class="form-check-input" <?= $p['est_operateur_principal'] ? 'checked' : '' ?>>
+                                        <label class="form-check-label small"><?= $p['est_operateur_principal'] ? 'Notre réseau' : 'Externe' ?></label>
+                                    </div>
+                                </td>
+                                <td style="min-width:100px">
+                                    <input form="<?= $formEditId ?>" type="number" name="commission_pourcentage" value="<?= esc($p['commission_pourcentage']) ?>" class="form-control form-control-sm" min="0" step="0.01">
+                                </td>
                                 <td style="width:110px">
                                     <div class="form-check form-switch">
                                         <input form="<?= $formEditId ?>" type="checkbox" name="actif" value="1" class="form-check-input" <?= $p['actif'] ? 'checked' : '' ?>>
@@ -86,7 +105,7 @@
                             <form id="<?= $formDelId ?>" method="post" action="<?= site_url('admin/prefixes/delete/' . $p['id']) ?>" onsubmit="return confirm('Supprimer ce préfixe ?');"><?= csrf_field() ?></form>
                         <?php endforeach; ?>
                         <?php if (empty($prefixes)): ?>
-                            <tr><td colspan="4" class="text-center text-muted">Aucun préfixe enregistré.</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted">Aucun préfixe enregistré.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

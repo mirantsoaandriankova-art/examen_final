@@ -40,14 +40,30 @@
       <div class="invalid-feedback" id="montantError">Montant invalide ou solde insuffisant.</div>
     </div>
 
+    <fieldset class="mb-3">
+      <legend class="form-label mb-2">Mode de frais</legend>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="frais_inclus" id="fraisEnPlus" value="0" checked>
+        <label class="form-check-label" for="fraisEnPlus">Frais en plus <span class="text-muted">(le destinataire reçoit le montant saisi)</span></label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="frais_inclus" id="fraisInclus" value="1">
+        <label class="form-check-label" for="fraisInclus">Frais inclus dans le montant <span class="text-muted">(le destinataire reçoit le montant net)</span></label>
+      </div>
+    </fieldset>
+
     <div class="mm-frais-preview" id="fraisPreview">
       <div class="d-flex justify-content-between">
         <span>Frais (à votre charge)</span>
         <strong id="previewFrais">0 Ar</strong>
       </div>
       <div class="d-flex justify-content-between mm-frais-total">
-        <span>Total débité (montant + frais)</span>
-        <strong id="previewTotal">0 Ar</strong>
+        <span>Montant débité</span>
+        <strong id="previewDebite">0 Ar</strong>
+      </div>
+      <div class="d-flex justify-content-between mm-frais-total">
+        <span>Montant reçu</span>
+        <strong id="previewRecu">0 Ar</strong>
       </div>
     </div>
 

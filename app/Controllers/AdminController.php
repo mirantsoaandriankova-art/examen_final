@@ -32,8 +32,9 @@ class AdminController extends BaseController
     public function dashboard()
     {
         $data = [
-            'gains'   => $this->transactionModel->getGainsParType(),
-            'comptes' => $this->compteModel->getAllClients(),
+            'gains'                => $this->transactionModel->getGainsParType(),
+            'situationOperateurs'  => $this->transactionModel->getSituationOperateurs(),
+            'comptes'              => $this->compteModel->getAllClients(),
         ];
 
         return view('admin/Dashboard', $data);
@@ -64,6 +65,8 @@ class AdminController extends BaseController
             'prefixe'     => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
             'actif'       => $this->request->getPost('actif') ? 1 : 0,
+            'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
+            'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
         ];
 
         if (! $this->prefixeModel->insert($data)) {
@@ -84,6 +87,8 @@ class AdminController extends BaseController
             'prefixe'     => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
             'actif'       => $this->request->getPost('actif') ? 1 : 0,
+            'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
+            'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
         ];
 
         if (! $this->prefixeModel->update($id, $data)) {

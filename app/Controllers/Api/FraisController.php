@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
+use App\Models\PrefixeModel;
 
 class FraisController extends BaseController
 {
@@ -21,6 +22,8 @@ class FraisController extends BaseController
 
         $typeOperation = $json['type_operation'] ?? $this->request->getPost('type_operation');
         $montant       = $json['montant'] ?? $this->request->getPost('montant');
+        $telephoneDest  = $json['telephone_destinataire'] ?? $this->request->getPost('telephone_destinataire');
+        $fraisInclus    = $json['frais_inclus'] ?? $this->request->getPost('frais_inclus') ?? 0;
 
         $rules = [
             'type_operation' => 'required|in_list[depot,retrait,transfert]',
@@ -34,6 +37,17 @@ class FraisController extends BaseController
             return $this->response
                 ->setStatusCode(400)
                 ->setJSON(['error' => $this->validator->getErrors()]);
+        }
+
+        if ($typeOperation === 'transfert') {
+            $autreOperateur = $telephoneDest
+                ? (new PrefixeModel())->getAutreOperateur((string) $telephoneDest)
+                : null;
+            $resultat = calculerFraisTransfert((float) $montant, $autreOperateur, (bool) $fraisInclus);
+
+            return $this->response->setJSON($resultat + [
+                'autre_operateur' => $autreOperateur !== null,
+            ]);
         }
 
         $resultat = calculerFrais((string) $typeOperation, (float) $montant);

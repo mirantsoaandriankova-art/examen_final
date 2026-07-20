@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initMontantLiveValidation();
   initFraisPreview();
   initOperationSubmit();
+  initEnvoiMultiple();
   initFlashToasts();
 });
 
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function validateTelephone(numero) {
   const cleaned = (numero || '').replace(/\s+/g, '');
-  return /^(033|037)\d{7}$/.test(cleaned);
+  return /^\d{10}$/.test(cleaned);
 }
 
 function initLoginValidation() {
@@ -84,6 +85,23 @@ function initFraisPreview() {
   const montantInput = document.getElementById('montant');
   if (!montantInput) return;
 
+  if (type === 'transfert') {
+    const telephoneInput = document.getElementById('telephone_destinataire');
+    const fraisInclusInputs = document.querySelectorAll('input[name="frais_inclus"]');
+    const preview = function () {
+      const fraisInclusInput = document.querySelector('input[name="frais_inclus"]:checked');
+      previewFraisTransfert(
+        montantInput.value,
+        telephoneInput ? telephoneInput.value : '',
+        fraisInclusInput && fraisInclusInput.value === '1'
+      );
+    };
+    montantInput.addEventListener('input', preview);
+    if (telephoneInput) telephoneInput.addEventListener('input', preview);
+    fraisInclusInputs.forEach(function (input) { input.addEventListener('change', preview); });
+    return;
+  }
+
   let timer = null;
   montantInput.addEventListener('input', function () {
     clearTimeout(timer);
@@ -91,6 +109,41 @@ function initFraisPreview() {
       previewFrais(montantInput.value, type);
     }, 300);
   });
+}
+
+function previewFraisTransfert(montant, telephoneDest, fraisInclus) {
+  const fraisEl = document.getElementById('previewFrais');
+  const debiteEl = document.getElementById('previewDebite');
+  const recuEl = document.getElementById('previewRecu');
+  if (!fraisEl || !debiteEl || !recuEl) return;
+
+  const montantVal = parseFloat(montant);
+  if (isNaN(montantVal) || montantVal <= 0) {
+    fraisEl.textContent = '0 Ar';
+    debiteEl.textContent = '0 Ar';
+    recuEl.textContent = '0 Ar';
+    return;
+  }
+
+  fetch('/api/calculer-frais', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'type_operation=transfert&montant=' + encodeURIComponent(montantVal)
+      + '&telephone_destinataire=' + encodeURIComponent(telephoneDest)
+      + '&frais_inclus=' + (fraisInclus ? '1' : '0'),
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      const fraisTotal = Number(data.frais || 0) + Number(data.commission || 0);
+      fraisEl.textContent = formatMontant(fraisTotal) + ' Ar';
+      debiteEl.textContent = formatMontant(data.montant_debite) + ' Ar';
+      recuEl.textContent = formatMontant(data.montant_recu) + ' Ar';
+    })
+    .catch(function () {
+      fraisEl.textContent = '—';
+      debiteEl.textContent = '—';
+      recuEl.textContent = '—';
+    });
 }
 
 function previewFrais(montant, typeOperation) {
@@ -122,6 +175,108 @@ function previewFrais(montant, typeOperation) {
     .catch(function () {
       fraisEl.textContent = '—';
       totalEl.textContent = '—';
+    });
+}
+
+/* ---------- Envoi multiple ---------- */
+
+function initEnvoiMultiple() {
+  const form = document.getElementById('multipleTransferForm');
+  if (!form) return;
+
+  const montantInput = document.getElementById('montant_total');
+  const list = document.getElementById('destinatairesList');
+  const addButton = document.getElementById('addDestinataireBtn');
+
+  addButton.addEventListener('click', function () {
+    addDestinataireField(list);
+    previewEnvoiMultiple(montantInput.value, getMultipleTelephones(list));
+  });
+
+  list.addEventListener('input', function () {
+    previewEnvoiMultiple(montantInput.value, getMultipleTelephones(list));
+  });
+  list.addEventListener('click', function (event) {
+    if (!event.target.closest('.remove-destinataire')) return;
+    removeDestinataireField(event.target.closest('.destinataire-field'), list);
+    previewEnvoiMultiple(montantInput.value, getMultipleTelephones(list));
+  });
+  montantInput.addEventListener('input', function () {
+    previewEnvoiMultiple(montantInput.value, getMultipleTelephones(list));
+  });
+
+  form.addEventListener('submit', function (event) {
+    const telephones = getMultipleTelephones(list);
+    if (!validateMontant(montantInput) || telephones.length < 2 || telephones.some(function (telephone) { return !validateTelephone(telephone); })) {
+      event.preventDefault();
+      return;
+    }
+    if (form.dataset.confirmed === 'true') return;
+
+    event.preventDefault();
+    const message = 'Confirmez-vous l’envoi multiple de ' + formatMontant(parseFloat(montantInput.value))
+      + ' Ar vers ' + telephones.length + ' destinataires ?';
+    confirmAction(message, function () {
+      form.dataset.confirmed = 'true';
+      form.submit();
+    });
+  });
+}
+
+function addDestinataireField(list) {
+  const field = document.createElement('div');
+  field.className = 'input-group mm-input-group mb-2 destinataire-field';
+  field.innerHTML = '<input type="tel" class="form-control multiple-telephone" name="telephones[]" placeholder="0321234567" inputmode="numeric" required>'
+    + '<button class="btn btn-outline-danger remove-destinataire" type="button" aria-label="Retirer"><i class="bi bi-trash"></i></button>';
+  list.appendChild(field);
+}
+
+function removeDestinataireField(field, list) {
+  if (list.querySelectorAll('.destinataire-field').length > 2) field.remove();
+}
+
+function getMultipleTelephones(list) {
+  return Array.from(list.querySelectorAll('.multiple-telephone'))
+    .map(function (input) { return input.value.trim(); })
+    .filter(Boolean);
+}
+
+function previewEnvoiMultiple(montantTotal, telephones) {
+  const preview = document.getElementById('multiplePreview');
+  const montant = parseFloat(montantTotal);
+  if (!preview || isNaN(montant) || montant <= 0 || telephones.length < 2) return;
+
+  const part = Math.floor(montant / telephones.length);
+  const reliquat = montant - part * telephones.length;
+  preview.textContent = 'Calcul des frais…';
+
+  Promise.all(telephones.map(function (telephone, index) {
+    const montantPart = part + (index === telephones.length - 1 ? reliquat : 0);
+    return fetch('/api/calculer-frais', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'type_operation=transfert&montant=' + encodeURIComponent(montantPart)
+        + '&telephone_destinataire=' + encodeURIComponent(telephone)
+        + '&frais_inclus=0',
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (data) { return { telephone: telephone, part: montantPart, data: data }; });
+  }))
+    .then(function (resultats) {
+      const totalDebite = resultats.reduce(function (total, resultat) {
+        return total + Number(resultat.data.montant_debite || 0);
+      }, 0);
+      preview.innerHTML = '<div class="fw-semibold mb-2">Répartition estimée</div>'
+        + resultats.map(function (resultat) {
+          const cout = Number(resultat.data.frais || 0) + Number(resultat.data.commission || 0);
+          return '<div class="d-flex justify-content-between small"><span>' + resultat.telephone + '</span><span>'
+            + formatMontant(resultat.part) + ' Ar, frais ' + formatMontant(cout) + ' Ar</span></div>';
+        }).join('')
+        + '<hr class="my-2"><div class="d-flex justify-content-between fw-semibold"><span>Total débité</span><span>'
+        + formatMontant(totalDebite) + ' Ar</span></div>';
+    })
+    .catch(function () {
+      preview.textContent = 'Aperçu indisponible.';
     });
 }
 

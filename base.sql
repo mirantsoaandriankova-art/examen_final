@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS prefixes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     prefixe TEXT NOT NULL UNIQUE,
     description TEXT,
-    actif INTEGER NOT NULL DEFAULT 1 CHECK (actif IN (0, 1))
+    actif INTEGER NOT NULL DEFAULT 1 CHECK (actif IN (0, 1)),
+    est_operateur_principal INTEGER NOT NULL DEFAULT 1 CHECK (est_operateur_principal IN (0, 1)),
+    commission_pourcentage REAL NOT NULL DEFAULT 0 CHECK (commission_pourcentage >= 0)
 );
 
 -- 2. Types d'opérations
@@ -59,11 +61,18 @@ CREATE TABLE IF NOT EXISTS transactions (
     solde_apres REAL NOT NULL,
     sens TEXT NOT NULL CHECK (sens IN ('credit', 'debit')),
     compte_lie_id INTEGER,                       -- NULL sauf pour un transfert
+    prefixe_id INTEGER,
+    commission REAL NOT NULL DEFAULT 0 CHECK (commission >= 0),
+    frais_inclus INTEGER NOT NULL DEFAULT 0 CHECK (frais_inclus IN (0, 1)),
+    groupe_envoi_id TEXT,
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (compte_id) REFERENCES comptes(id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
     FOREIGN KEY (compte_lie_id) REFERENCES comptes(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    FOREIGN KEY (prefixe_id) REFERENCES prefixes(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (type_operation_id) REFERENCES types_operation(id)
@@ -78,6 +87,8 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE INDEX IF NOT EXISTS idx_transactions_compte ON transactions(compte_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_compte_lie ON transactions(compte_lie_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type_operation_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_prefixe ON transactions(prefixe_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_groupe_envoi ON transactions(groupe_envoi_id);
 CREATE INDEX IF NOT EXISTS idx_baremes_type ON baremes_frais(type_operation_id);
 
 -- Vue : gains totaux par type d'opération (dashboard admin)
@@ -97,9 +108,11 @@ GROUP BY t.id, t.code, t.libelle;
 -- =============================================
 
 -- Préfixes
-INSERT OR IGNORE INTO prefixes (prefixe, description, actif) VALUES
-('033', 'Opérateur A', 1),
-('037', 'Opérateur B', 1);
+INSERT OR IGNORE INTO prefixes (prefixe, description, actif, est_operateur_principal, commission_pourcentage) VALUES
+('033', 'Opérateur A', 1, 1, 0),
+('037', 'Opérateur B', 1, 1, 0),
+('032', 'Opérateur externe C', 1, 0, 2),
+('031', 'Opérateur externe D', 1, 0, 3);
 
 -- Types d'opérations (dépôt, retrait et transfert avec frais)
 INSERT OR IGNORE INTO types_operation (code, libelle, frais_applicable) VALUES
@@ -151,4 +164,6 @@ INSERT OR IGNORE INTO comptes (telephone, nom, solde, role) VALUES
 ('0331234567', 'Rakoto Jean', 500000, 'client'),
 ('0372345678', 'Rasoa Marie', 250000, 'client'),
 ('0339999999', 'Randria Paul', 10000, 'client'),
+('0323456789', 'Client opérateur C', 100000, 'client'),
+('0314567890', 'Client opérateur D', 100000, 'client'),
 ('0330000000', 'Administrateur', 0, 'admin');

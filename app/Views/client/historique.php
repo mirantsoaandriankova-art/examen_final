@@ -25,9 +25,23 @@
           </tr>
         </thead>
         <tbody>
+          <?php $groupeAffiche = null; ?>
           <?php foreach ($transactions as $tx): ?>
+            <?php if (! empty($tx['groupe_envoi_id']) && $tx['groupe_envoi_id'] !== $groupeAffiche): ?>
+              <tr class="table-light">
+                <td colspan="6" class="small fw-semibold text-primary">
+                  <i class="bi bi-people me-1"></i>Envoi multiple #<?= esc(substr($tx['groupe_envoi_id'], 0, 8)) ?>
+                </td>
+              </tr>
+              <?php $groupeAffiche = $tx['groupe_envoi_id']; ?>
+            <?php elseif (empty($tx['groupe_envoi_id'])): ?>
+              <?php $groupeAffiche = null; ?>
+            <?php endif; ?>
             <tr>
-              <td><?= esc($tx['type_libelle'] ?? ucfirst($tx['type_code'] ?? '')) ?></td>
+              <td>
+                <?= esc($tx['type_libelle'] ?? ucfirst($tx['type_code'] ?? '')) ?>
+                <?php if (! empty($tx['prefixe_externe'])): ?><span class="text-muted small">(<?= esc($tx['prefixe_externe']) ?>)</span><?php endif; ?>
+              </td>
               <td>
                 <span class="mm-badge-sens mm-badge-sens--<?= esc($tx['sens']) ?>">
                   <i class="bi bi-<?= $tx['sens'] === 'credit' ? 'plus' : 'dash' ?>-circle"></i>
@@ -35,7 +49,10 @@
                 </span>
               </td>
               <td><?= number_format($tx['montant'], 0, ',', ' ') ?> Ar</td>
-              <td><?= $tx['frais'] > 0 ? number_format($tx['frais'], 0, ',', ' ') . ' Ar' : '—' ?></td>
+              <td>
+                <?php $cout = (float) $tx['frais'] + (float) ($tx['commission'] ?? 0); ?>
+                <?= $cout > 0 ? number_format($cout, 0, ',', ' ') . ' Ar' : '—' ?>
+              </td>
               <td><?= number_format($tx['solde_apres'], 0, ',', ' ') ?> Ar</td>
               <td><?= date('d/m/Y H:i', strtotime($tx['date_operation'])) ?></td>
             </tr>

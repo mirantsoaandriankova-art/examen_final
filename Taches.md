@@ -22,11 +22,11 @@
 
 Ces signatures sont décidées ensemble en Heure 1 pour que le développement en parallèle ne casse rien :
 
-| Fonction                                                                    | Fichier                              | Rôle                                                                      |
-| --------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
-| `CompteModel::findByTelephone(string $telephone): ?array`                 | `app/Models/CompteModel.php`       | Retrouve un compte pour le login                                           |
-| `TransactionModel::getByCompte(int $compteId, ?int $limit = null): array` | `app/Models/TransactionModel.php`  | Historique (dashboard = limit 5, historique = sans limite)                 |
-| `calculerFrais(string $typeOperationCode, float $montant): array`         | `app/Helpers/operation_helper.php` | Retourne `['frais' => float, 'total' => float]` selon le barème |
+| Fonction                                                                    | Fichier                              | Rôle                                                             |
+| --------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------- |
+| `CompteModel::findByTelephone(string $telephone): ?array`                 | `app/Models/CompteModel.php`       | Retrouve un compte pour le login                                  |
+| `TransactionModel::getByCompte(int $compteId, ?int $limit = null): array` | `app/Models/TransactionModel.php`  | Historique (dashboard = limit 5, historique = sans limite)        |
+| `calculerFrais(string $typeOperationCode, float $montant): array`         | `app/Helpers/operation_helper.php` | Retourne`['frais' => float, 'total' => float]` selon le barème |
 
 ---
 
@@ -139,46 +139,46 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ### Authentification
 
-- [ ] **`app/Controllers/AuthController.php`**
+- [X] **`app/Controllers/AuthController.php`**
   - `login()` — GET `/login`, affiche `auth/login.php`
   - `authenticate()` — POST `/login`, reçoit `telephone`, appelle `CompteModel::findByTelephone()`. Si trouvé : `session()->set(['compte_id' => .., 'telephone' => .., 'solde' => .., 'role' => ..])` puis redirection selon rôle (`/client/dashboard` ou `/admin`). Si non trouvé : message flash "Numéro non reconnu"
   - `logout()` — `session()->destroy()`, redirige vers `/login`
-- [ ] **`app/Views/auth/login.php`** — formulaire `telephone`, affichage du message flash, validation JS du format avant envoi (`validateTelephone()`)
+- [X] **`app/Views/auth/login.php`** — formulaire `telephone`, affichage du message flash, validation JS du format avant envoi (`validateTelephone()`)
 
 ### Dashboard client
 
-- [ ] **`app/Controllers/ClientController.php::dashboard()`**
+- [X] **`app/Controllers/ClientController.php::dashboard()`**
   - GET `/client/dashboard`
   - Récupère `compte_id` en session, relit le solde à jour via `CompteModel`, appelle `TransactionModel::getByCompte($compteId, 5)`
-- [ ] **`app/Views/client/dashboard.php`** — carte solde en évidence + boutons Dépôt / Retrait / Transfert / Historique + tableau des 5 dernières transactions
+- [X] **`app/Views/client/dashboard.php`** — carte solde en évidence + boutons Dépôt / Retrait / Transfert / Historique + tableau des 5 dernières transactions
 
 ### Opérations
 
-- [ ] **`ClientController::depot()`** (GET, formulaire) / **`storeDepot()`** (POST)
+- [X] **`ClientController::depot()`** (GET, formulaire) / **`storeDepot()`** (POST)
   - Valide `montant > 0`
   - Appelle `calculerFrais('depot', $montant)` ; le compte est crédité de `montant - frais`
   - `CompteModel::crediter($compteId, $montant)` puis `TransactionModel::enregistrer([...])` avec les frais
-- [ ] **`ClientController::retrait()`** (GET) / **`storeRetrait()`** (POST)
-  - Appelle le helper backend `calculerFrais('retrait', $montant)`
-  - Vérifie `solde >= montant + frais`, sinon message d'erreur
-  - `CompteModel::debiter()` puis `TransactionModel::enregistrer()`
-- [ ] **`ClientController::transfert()`** (GET) / **`storeTransfert()`** (POST)
+  - [X] **`ClientController::retrait()`** (GET) / **`storeRetrait()`** (POST)
+    - Appelle le helper backend `calculerFrais('retrait', $montant)`
+    - Vérifie `solde >= montant + frais`, sinon message d'erreur
+    - `CompteModel::debiter()` puis `TransactionModel::enregistrer()`
+- [X] **`ClientController::transfert()`** (GET) / **`storeTransfert()`** (POST)
   - Reçoit `telephone_destinataire`, `montant`
   - Vérifie que le destinataire existe (`CompteModel::findByTelephone()`) et diffère de l'émetteur
   - `calculerFrais('transfert', $montant)`, vérifie le solde de l'émetteur
   - Débite l'émetteur (montant + frais), crédite le destinataire (montant net)
   - Enregistre les 2 écritures liées (`compte_lie_id` croisé) via `TransactionModel::enregistrer()`
-- [ ] **Vues** — `app/Views/client/depot.php`, `retrait.php`, `transfert.php`
+- [X] **Vues** — `app/Views/client/depot.php`, `retrait.php`, `transfert.php`
   - Affichage du solde disponible + aperçu du montant total (montant + frais) via AJAX avant confirmation
 
 ### Historique
 
-- [ ] **`ClientController::historique()`** — GET `/client/historique`, `TransactionModel::getByCompte($compteId)` sans limite
-- [ ] **`app/Views/client/historique.php`** — tableau : type d'opération, montant, frais, solde après, date, sens (crédit/débit)
+- [X] **`ClientController::historique()`** — GET `/client/historique`, `TransactionModel::getByCompte($compteId)` sans limite
+- [X] **`app/Views/client/historique.php`** — tableau : type d'opération, montant, frais, solde après, date, sens (crédit/débit)
 
 ### UI / UX / JS
 
-- [ ] **`public/assets/js/client.js`**
+- [X] **`public/assets/js/client.js`**
   - `validateTelephone(numero)` — regex format attendu (préfixe + longueur)
   - `validateMontant(input)` — bloque les montants négatifs ou non numériques
   - `previewFrais(montant, typeOperation)` — `fetch('/api/calculer-frais', ...)` vers `Api\FraisController::calculer()`, met à jour l'aperçu de frais en direct
@@ -223,6 +223,17 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ---
 
+## Version 2 — Extensions
+
+- [X] Préfixes d'opérateurs externes avec commission configurable
+- [X] Transfert avec frais ajoutés ou inclus dans le montant
+- [X] Transfert externe sans frais de retrait, avec commission de l'opérateur externe
+- [X] Envoi multiple atomique avec répartition du reliquat au dernier destinataire
+- [X] Regroupement visuel des envois multiples dans l'historique
+- [X] Situation des commissions à régulariser par opérateur externe sur le dashboard
+
+---
+
 ---
 
 ---
@@ -250,7 +261,6 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
   - Nouvelles méthodes :
     - `getAutresOperateurs(): array` — liste des préfixes où `est_operateur_principal = 0` et `actif = 1`
     - `getAutreOperateur(string $numero): ?array` — parcourt `getAutresOperateurs()`, retourne le préfixe correspondant au numéro (avec sa `commission_pourcentage`), ou `null` si le numéro appartient à notre réseau *(contrat commun V2)*
-
 - [ ] **`app/Models/TransactionModel.php`** — traçage de l'opérateur externe et de la commission
 
   - Nouvelles colonnes table `transactions` : `prefixe_id` (INTEGER, nullable, FK vers `prefixes.id`), `commission` (REAL, défaut 0), `frais_inclus` (INTEGER, 0/1, défaut 0), `groupe_envoi_id` (TEXT, nullable — regroupe les lignes d'un même envoi multiple)
@@ -270,7 +280,6 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
   - Si `$fraisInclus === true` : `montant_debite = $montant`, `montant_recu = $montant - $frais - $commission`
   - Retourne `['frais' => float, 'commission' => float, 'montant_debite' => float, 'montant_recu' => float]`
   - Reste séparée de `calculerFrais()` (qui continue de gérer dépôt/retrait simplement)
-
 - [ ] **`app/Controllers/Api/FraisController.php`** — extension de `calculer()`
 
   - Accepte en plus `telephone_dest` (optionnel, pour détecter un autre opérateur) et `frais_inclus` (booléen, optionnel, défaut `false`)
@@ -280,11 +289,12 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 ### CRUD Admin (extensions)
 
 - [ ] **`app/Controllers/AdminController.php`**
+
   - `prefixes()` — le formulaire existant intègre les nouveaux champs `est_operateur_principal` (select ou checkbox) et `commission_pourcentage` (input number, affiché seulement si "autre opérateur" est coché, en JS)
   - `storePrefixe()` / `updatePrefixe($id)` — valident et enregistrent les 2 nouveaux champs
   - `dashboard()` — appelle désormais `TransactionModel::getGainsParOperateur()` (en plus ou à la place de `getGainsParType()`) et `TransactionModel::getMontantsAEnvoyerParOperateur()`
-
 - [ ] **Vues admin (mise à jour)**
+
   - `prefixes.php` — ajoute une colonne "Type" (Notre opérateur / Autre) et "Commission %" dans le tableau + les champs correspondants dans le formulaire d'ajout/édition
   - `dashboard.php` — 2 blocs de cards distincts ("Notre opérateur" vs "Autres opérateurs" pour les gains), + un nouveau tableau "Montants à envoyer par opérateur" (nom de l'opérateur, montant total, à régler)
 
@@ -296,27 +306,28 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 - [ ] **`ClientController::transfert()`** (GET) — le formulaire ajoute un choix radio "Frais en plus" (défaut) / "Frais inclus dans le montant"
 - [ ] **`ClientController::storeTransfert()`** (POST) — extension
+
   - Reçoit en plus `frais_inclus` (0/1)
   - Appelle `PrefixeModel::getAutreOperateur($telephoneDestinataire)` pour savoir si c'est un transfert externe
   - Appelle `calculerFraisTransfert($montant, $autreOperateur, $fraisInclus)` au lieu de l'ancien calcul simple
   - Vérifie `solde émetteur >= montant_debite`
   - Débite l'émetteur de `montant_debite`, crédite le destinataire de `montant_recu`
   - Enregistre les 2 écritures avec `prefixe_id` (si externe), `commission`, `frais_inclus` renseignés
-
 - [ ] **`app/Views/client/transfert.php`** (mise à jour) — radio "frais en plus / frais inclus", aperçu AJAX mis à jour pour afficher `montant_debite` ET `montant_recu` selon le mode choisi
 
 ### Envoi multiple (nouveau)
 
 - [ ] **`ClientController::envoiMultiple()`** (GET) — affiche le formulaire (montant total + liste de numéros dynamique)
 - [ ] **`ClientController::storeEnvoiMultiple()`** (POST)
+
   - Reçoit `montant_total` et un tableau `telephones[]`
   - Calcule la part par destinataire : `$part = $montantTotal / count($telephones)` (arrondi à définir — proposition : dernier destinataire récupère le reliquat pour que la somme des parts égale exactement le montant total)
   - Pour chaque destinataire : calcule `calculerFraisTransfert()` sur sa part, vérifie l'existence du compte (`CompteModel::findByTelephone()`)
   - Vérifie que le solde de l'émetteur couvre la **somme de tous les `montant_debite`** avant d'exécuter quoi que ce soit
   - Exécute la boucle de mini-transferts dans une transaction SQL atomique : `$db->transStart()` ... boucle `crediter()`/`debiter()`/`enregistrer()` ... `$db->transComplete()` — si un seul échoue, tout est annulé (`transStatus()`)
   - Génère un `groupe_envoi_id` unique (ex: `uniqid()` ou `bin2hex(random_bytes(8))`) commun à toutes les lignes de cet envoi
-
 - [ ] **`app/Views/client/envoi_multiple.php`** (nouveau)
+
   - Champ `montant_total`
   - Liste de champs téléphone ajoutable/supprimable dynamiquement (JS)
   - Aperçu AJAX de la part + frais par destinataire avant confirmation

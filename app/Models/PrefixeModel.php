@@ -12,13 +12,21 @@ class PrefixeModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
 
-    protected $allowedFields = ['prefixe', 'description', 'actif'];
+    protected $allowedFields = [
+        'prefixe',
+        'description',
+        'actif',
+        'est_operateur_principal',
+        'commission_pourcentage',
+    ];
 
     protected $useTimestamps = false;
 
     protected $validationRules = [
         'prefixe' => 'required|is_unique[prefixes.prefixe,id,{id}]|max_length[10]',
         'actif'   => 'permit_empty|in_list[0,1]',
+        'est_operateur_principal' => 'permit_empty|in_list[0,1]',
+        'commission_pourcentage'  => 'permit_empty|decimal|greater_than_equal_to[0]',
     ];
 
     protected $validationMessages = [
@@ -53,5 +61,22 @@ class PrefixeModel extends Model
         }
 
         return false;
+    }
+
+    /**
+     * Retourne le préfixe actif d'un autre opérateur correspondant au numéro.
+     */
+    public function getAutreOperateur(string $numero): ?array
+    {
+        foreach ($this->where('actif', 1)
+                      ->where('est_operateur_principal', 0)
+                      ->orderBy('LENGTH(prefixe)', 'DESC', false)
+                      ->findAll() as $prefixe) {
+            if (str_starts_with($numero, $prefixe['prefixe'])) {
+                return $prefixe;
+            }
+        }
+
+        return null;
     }
 }

@@ -29,6 +29,7 @@
           <li class="nav-item"><a class="nav-link <?= $current === 'client/depot' ? 'active' : '' ?>" href="/client/depot"><i class="bi bi-arrow-down-circle me-1"></i>Dépôt</a></li>
           <li class="nav-item"><a class="nav-link <?= $current === 'client/retrait' ? 'active' : '' ?>" href="/client/retrait"><i class="bi bi-arrow-up-circle me-1"></i>Retrait</a></li>
           <li class="nav-item"><a class="nav-link <?= $current === 'client/transfert' ? 'active' : '' ?>" href="/client/transfert"><i class="bi bi-arrow-left-right me-1"></i>Transfert</a></li>
+          <li class="nav-item"><a class="nav-link <?= $current === 'client/envoi-multiple' ? 'active' : '' ?>" href="/client/envoi-multiple"><i class="bi bi-people me-1"></i>Envoi multiple</a></li>
           <li class="nav-item"><a class="nav-link <?= $current === 'client/historique' ? 'active' : '' ?>" href="/client/historique"><i class="bi bi-clock-history me-1"></i>Historique</a></li>
         <?php else: ?>
           <li class="nav-item"><a class="nav-link <?= $current === 'admin' ? 'active' : '' ?>" href="/admin"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
