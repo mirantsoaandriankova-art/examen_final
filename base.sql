@@ -2,6 +2,9 @@
 -- SCHEMA BASE DE DONNÉES - MOBILE MONEY v1
 -- =============================================
 
+-- Active la vérification des clés étrangères (désactivée par défaut sous SQLite)
+PRAGMA foreign_keys = ON;
+
 -- 1. Préfixes de l'opérateur
 CREATE TABLE IF NOT EXISTS prefixes_operateur (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +20,7 @@ CREATE TABLE IF NOT EXISTS types_operation (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Barèmes de frais (selon ton exemple)
+-- 3. Barèmes de frais 
 CREATE TABLE IF NOT EXISTS baremes_frais (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
@@ -26,6 +29,10 @@ CREATE TABLE IF NOT EXISTS baremes_frais (
     frais INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (type_operation_id) REFERENCES types_operation(id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CHECK (tranche_max IS NULL OR tranche_max > tranche_min),
+    CHECK (frais >= 0)
 );
 
 -- 4. Comptes clients
@@ -34,7 +41,8 @@ CREATE TABLE IF NOT EXISTS comptes (
     telephone TEXT NOT NULL UNIQUE,
     solde REAL DEFAULT 0.0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CHECK (solde >= 0)
 );
 
 -- 5. Historique des transactions (mouvements)
@@ -49,26 +57,46 @@ CREATE TABLE IF NOT EXISTS transactions (
     statut TEXT DEFAULT 'succes',
     date_transaction DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (type_operation_id) REFERENCES types_operation(id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CHECK (montant > 0),
+    CHECK (frais >= 0)
 );
 
+-- Index pour accélérer l'historique client (recherche par telephone_source / telephone_dest)
+CREATE INDEX IF NOT EXISTS idx_transactions_source ON transactions(telephone_source);
+CREATE INDEX IF NOT EXISTS idx_transactions_dest ON transactions(telephone_dest);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type_operation_id);
+CREATE INDEX IF NOT EXISTS idx_baremes_type ON baremes_frais(type_operation_id);
+
 -- =============================================
--- DONNÉES INITIALES (selon ta photo)
+-- DONNÉES INITIALES 
 -- =============================================
 
 -- Préfixes
 INSERT OR IGNORE INTO prefixes_operateur (prefixe) VALUES ('033'), ('037');
 
 -- Types d'opérations
-INSERT OR IGNORE INTO types_operation (nom, description) VALUES 
+INSERT OR IGNORE INTO types_operation (nom, description) VALUES
 ('depot', 'Dépôt d\'argent'),
 ('retrait', 'Retrait d\'argent'),
 ('transfert', 'Transfert d\'argent');
 
--- Barèmes de frais selon ton exemple (je les ai associés au retrait)
--- Tu pourras les modifier facilement dans l'interface admin
-INSERT OR IGNORE INTO baremes_frais (type_operation_id, tranche_min, tranche_max, frais) VALUES 
+INSERT OR IGNORE INTO baremes_frais (type_operation_id, tranche_min, tranche_max, frais) VALUES
 
--- Retrait (id=2)
+-- Transfert (id=3)
+(3, 100, 1000, 50),
+(3, 1001, 5000, 50),
+(3, 5001, 10000, 100),
+(3, 10001, 25000, 200),
+(3, 25001, 50000, 400),
+(3, 50001, 100000, 800),
+(3, 100001, 250000, 1500),
+(3, 250001, 500000, 2500),
+(3, 500001, 1000000, 3000),
+(3, 1000001, NULL, 5000),  
+
+--retrait (id=2)
 (2, 100, 1000, 50),
 (2, 1001, 5000, 50),
 (2, 5001, 10000, 100),
@@ -78,6 +106,4 @@ INSERT OR IGNORE INTO baremes_frais (type_operation_id, tranche_min, tranche_max
 (2, 100001, 250000, 1500),
 (2, 250001, 500000, 2500),
 (2, 500001, 1000000, 3000),
-(2, 1000001, NULL, 5000);   -- au-delà de 1 000 000
-
--- Tu peux créer d'autres barèmes pour "transfert" plus tard
+(2, 1000001, NULL, 5000);
