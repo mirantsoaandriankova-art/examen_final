@@ -58,7 +58,7 @@ class ClientController extends BaseController
     }
 
     // -------------------------------------------------
-    // DEPOT (sans frais)
+    // DEPOT (avec frais)
     // -------------------------------------------------
 
     /**
@@ -85,6 +85,15 @@ class ClientController extends BaseController
             return redirect()->to('/client/depot');
         }
 
+        $result     = calculerFrais('depot', $montant);
+        $frais      = $result['frais'];
+        $montantNet = $montant - $frais;
+
+        if ($montantNet <= 0) {
+            session()->setFlashdata('error', 'Le montant doit être supérieur aux frais de dépôt.');
+            return redirect()->to('/client/depot');
+        }
+
         $type = $this->typeOperationModel->findByCode('depot');
 
         if (! $type) {
@@ -92,21 +101,26 @@ class ClientController extends BaseController
             return redirect()->to('/client/depot');
         }
 
-        $this->compteModel->crediter($compteId, $montant);
+        $this->compteModel->crediter($compteId, $montantNet);
         $soldeApres = $this->compteModel->getSolde($compteId);
 
         $this->transactionModel->enregistrer([
             'compte_id'         => $compteId,
             'type_operation_id' => $type['id'],
             'montant'           => $montant,
-            'frais'             => 0,
+            'frais'             => $frais,
             'solde_apres'       => $soldeApres,
             'sens'              => 'credit',
             'compte_lie_id'     => null,
         ]);
 
         session()->set('solde', $soldeApres);
-        session()->setFlashdata('success', 'Dépôt de ' . $this->formatMontant($montant) . ' Ar effectué avec succès.');
+        session()->setFlashdata(
+            'success',
+            'Dépôt de ' . $this->formatMontant($montant) . ' Ar effectué. Montant crédité : '
+                . $this->formatMontant($montantNet) . ' Ar (frais : '
+                . $this->formatMontant($frais) . ' Ar).'
+        );
 
         return redirect()->to('/client');
     }

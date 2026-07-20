@@ -19,7 +19,7 @@ class TransactionModel extends Model
         'frais',
         'solde_apres',
         'sens',
-        'compte_contrepartie_id', // NULL sauf transfert ; ce n'est pas forcément le "receveur", voir sens
+        'compte_lie_id', // NULL sauf transfert ; ce n'est pas forcément le "receveur", voir sens
     ];
 
     // date_operation a un DEFAULT CURRENT_TIMESTAMP côté SQLite
@@ -31,8 +31,8 @@ class TransactionModel extends Model
         'montant'           => 'required|decimal|greater_than[0]',
         'frais'             => 'permit_empty|decimal|greater_than_equal_to[0]',
         'solde_apres'       => 'required|decimal|greater_than_equal_to[0]',
-        'sens'                   => 'required|in_list[credit,debit]',
-        'compte_contrepartie_id' => 'permit_empty|integer',
+        'sens'            => 'required|in_list[credit,debit]',
+        'compte_lie_id'   => 'permit_empty|integer',
     ];
 
     protected $skipValidation = false;

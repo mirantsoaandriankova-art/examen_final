@@ -29,7 +29,7 @@
         <strong id="previewFrais">0 Ar</strong>
       </div>
       <div class="d-flex justify-content-between mm-frais-total">
-        <span>Total crédité</span>
+        <span>Montant net crédité</span>
         <strong id="previewTotal">0 Ar</strong>
       </div>
     </div>

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS types_operation (
     frais_applicable INTEGER NOT NULL DEFAULT 1 CHECK (frais_applicable IN (0, 1))
 );
 
--- 3. Barèmes de frais (retrait et transfert uniquement, le dépôt reste sans frais)
+-- 3. Barèmes de frais applicables au dépôt, retrait et transfert
 CREATE TABLE IF NOT EXISTS baremes_frais (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
@@ -101,7 +101,7 @@ INSERT OR IGNORE INTO prefixes (prefixe, description, actif) VALUES
 ('033', 'Opérateur A', 1),
 ('037', 'Opérateur B', 1);
 
--- Types d'opérations (dépôt sans frais, retrait et transfert avec frais)
+-- Types d'opérations (dépôt, retrait et transfert avec frais)
 INSERT OR IGNORE INTO types_operation (code, libelle, frais_applicable) VALUES
 ('depot', 'Dépôt d''argent', 1),
 ('retrait', 'Retrait d''argent', 1),
@@ -111,9 +111,9 @@ INSERT OR IGNORE INTO types_operation (code, libelle, frais_applicable) VALUES
 INSERT OR IGNORE INTO baremes_frais (type_operation_id, montant_min, montant_max, frais)
 
 -- Dépôt (frais réduits)
-SELECT id, 100, 1000, 0 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 1001, 5000, 0 FROM types_operation WHERE code = 'depot'
-UNION ALL SELECT id, 5001, 10000, 0 FROM types_operation WHERE code = 'depot'
+SELECT id, 100, 1000, 20 FROM types_operation WHERE code = 'depot'
+UNION ALL SELECT id, 1001, 5000, 20 FROM types_operation WHERE code = 'depot'
+UNION ALL SELECT id, 5001, 10000, 40 FROM types_operation WHERE code = 'depot'
 UNION ALL SELECT id, 10001, 25000, 100 FROM types_operation WHERE code = 'depot'
 UNION ALL SELECT id, 25001, 50000, 150 FROM types_operation WHERE code = 'depot'
 UNION ALL SELECT id, 50001, 100000, 250 FROM types_operation WHERE code = 'depot'
