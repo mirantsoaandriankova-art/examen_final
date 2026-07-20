@@ -225,6 +225,8 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ---
 
+---
+
 ## Règles métier importantes — Version 2 (nouveau)
 
 - Un préfixe est maintenant soit **notre opérateur** (`est_operateur_principal = 1`), soit **un autre opérateur** (`= 0`, ex : 032, 031…).
@@ -232,65 +234,125 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 - Deux notions à bien séparer côté admin :
   - **Gain** = frais (barème) + commission externe → ce que l'entreprise encaisse.
   - **Montant à envoyer** = le montant principal (hors frais/commission) transféré vers chaque autre opérateur → ce que l'entreprise doit reverser/régler à cet opérateur (règlement d'interconnexion), **pas un gain**.
-- Le dashboard "Situation gain" doit **séparer visuellement** les gains "notre opérateur" (dépôt/retrait/transfert interne) des gains "autres opérateurs" (frais + commission sur transferts sortants).
-- Côté client, un transfert peut être en mode :
-  - **"Frais en plus"** (comportement V1, par défaut) : le client saisit le montant à recevoir par le destinataire, débit = montant + frais(+commission).
-  - **"Frais inclus"** (nouveau) : le client saisit le montant total qu'il veut débiter de son compte, les frais(+commission) sont prélevés dessus donc le destinataire reçoit **moins** que le montant saisi.
-- **Envoi multiple** : le client saisit un montant total + une liste de numéros. Le montant est **divisé à parts égales** entre les destinataires ; chaque part suit le calcul de frais standard (et la commission si le destinataire est sur un autre opérateur) comme un transfert normal. Toute la série doit être atomique (si un des envois échoue, aucun n'est appliqué).
+- Le mode **"frais inclus"** change qui supporte les frais : soit le destinataire reçoit un montant net (frais en plus, débit = montant + frais), soit le client saisit le débit total et les frais sont prélevés dessus (destinataire reçoit moins).
+- **Envoi multiple** : un montant total divisé à parts égales entre N numéros, chaque part traitée comme un transfert normal (frais + commission éventuelle), en une seule transaction SQL atomique.
 
-## Contrat commun — V2 (ajouts)
+---
 
-| Fonction | Fichier | Rôle |
-|---|---|---|
-| `PrefixeModel::getAutreOperateur(string $numero): ?array` | `app/Models/PrefixeModel.php` | Retrouve le préfixe "autre opérateur" correspondant au numéro (avec sa commission), ou `null` si c'est notre réseau |
-| `calculerFraisTransfert(float $montant, ?array $autreOperateur, bool $fraisInclus): array` | `app/Helpers/operation_helper.php` | Version étendue pour le transfert : ajoute la commission si `$autreOperateur` n'est pas null, gère le mode "frais inclus" (retourne `['frais' => .., 'commission' => .., 'montant_debite' => .., 'montant_recu' => ..]`) |
-| `TransactionModel::getGainsParOperateur(): array` | `app/Models/TransactionModel.php` | Gains groupés en 2 blocs : notre opérateur / autres opérateurs |
-| `TransactionModel::getMontantsAEnvoyerParOperateur(): array` | `app/Models/TransactionModel.php` | Somme des montants principaux (hors frais/commission) transférés vers chaque autre opérateur |
+## ETU004190 (Backend + Opérateur) — Version 2
 
-⚠️ **`calculerFraisTransfert()` est un cas particulier de `calculerFrais()`** — recommandation : deux fonctions distinctes, `calculerFrais()` reste simple pour dépôt/retrait, `calculerFraisTransfert()` gère spécifiquement le cas transfert (interne/externe, frais inclus/en plus).
+### Models (extensions)
+
+- [ ] **`app/Models/PrefixeModel.php`** — ajout de la gestion des autres opérateurs
+
+  - Nouvelles colonnes table `prefixes` : `est_operateur_principal` (INTEGER, 0/1, défaut 1), `commission_pourcentage` (REAL, défaut 0)
+  - `$allowedFields` devient `['prefixe', 'description', 'actif', 'est_operateur_principal', 'commission_pourcentage']`
+  - Nouvelles méthodes :
+    - `getAutresOperateurs(): array` — liste des préfixes où `est_operateur_principal = 0` et `actif = 1`
+    - `getAutreOperateur(string $numero): ?array` — parcourt `getAutresOperateurs()`, retourne le préfixe correspondant au numéro (avec sa `commission_pourcentage`), ou `null` si le numéro appartient à notre réseau *(contrat commun V2)*
+
+- [ ] **`app/Models/TransactionModel.php`** — traçage de l'opérateur externe et de la commission
+
+  - Nouvelles colonnes table `transactions` : `prefixe_id` (INTEGER, nullable, FK vers `prefixes.id`), `commission` (REAL, défaut 0), `frais_inclus` (INTEGER, 0/1, défaut 0), `groupe_envoi_id` (TEXT, nullable — regroupe les lignes d'un même envoi multiple)
+  - `$allowedFields` devient `['compte_id', 'type_operation_id', 'montant', 'frais', 'solde_apres', 'sens', 'compte_lie_id', 'prefixe_id', 'commission', 'frais_inclus', 'groupe_envoi_id']`
+  - Nouvelles méthodes :
+    - `getGainsParOperateur(): array` — retourne 2 lignes : `SUM(frais + commission)` où `prefixe_id IS NULL` (= notre opérateur), et `SUM(frais + commission)` où `prefixe_id IS NOT NULL`, groupé ensuite par `prefixe_id` pour le détail par autre opérateur *(contrat commun V2)*
+    - `getMontantsAEnvoyerParOperateur(): array` — `SELECT prefixes.libelle, SUM(transactions.montant) as total_a_envoyer` groupé par `prefixe_id`, uniquement sur les transferts sortants (`sens = 'debit'` et `prefixe_id IS NOT NULL`) *(contrat commun V2)*
+
+### Logique métier / calcul des frais (extension)
+
+- [ ] **`app/Helpers/operation_helper.php`** — nouvelle fonction `calculerFraisTransfert(float $montant, ?array $autreOperateur, bool $fraisInclus): array`
+
+  - `$autreOperateur` = résultat de `PrefixeModel::getAutreOperateur()` (ou `null` si transfert interne)
+  - Enchaîne `TypeOperationModel::findByCode('transfert')` puis `BaremeFraisModel::getTranche()` pour le frais de base
+  - Si `$autreOperateur !== null` : ajoute `commission = $montant * ($autreOperateur['commission_pourcentage'] / 100)`
+  - Si `$fraisInclus === false` (comportement V1) : `montant_debite = $montant + $frais + $commission`, `montant_recu = $montant`
+  - Si `$fraisInclus === true` : `montant_debite = $montant`, `montant_recu = $montant - $frais - $commission`
+  - Retourne `['frais' => float, 'commission' => float, 'montant_debite' => float, 'montant_recu' => float]`
+  - Reste séparée de `calculerFrais()` (qui continue de gérer dépôt/retrait simplement)
+
+- [ ] **`app/Controllers/Api/FraisController.php`** — extension de `calculer()`
+
+  - Accepte en plus `telephone_dest` (optionnel, pour détecter un autre opérateur) et `frais_inclus` (booléen, optionnel, défaut `false`)
+  - Si `type_operation === 'transfert'` et `telephone_dest` fourni : appelle `PrefixeModel::getAutreOperateur($telephone_dest)` puis `calculerFraisTransfert()` au lieu de `calculerFrais()`
+  - Répond en JSON `{frais, commission, montant_debite, montant_recu}` dans ce cas (au lieu de `{frais, total}`)
+
+### CRUD Admin (extensions)
+
+- [ ] **`app/Controllers/AdminController.php`**
+  - `prefixes()` — le formulaire existant intègre les nouveaux champs `est_operateur_principal` (select ou checkbox) et `commission_pourcentage` (input number, affiché seulement si "autre opérateur" est coché, en JS)
+  - `storePrefixe()` / `updatePrefixe($id)` — valident et enregistrent les 2 nouveaux champs
+  - `dashboard()` — appelle désormais `TransactionModel::getGainsParOperateur()` (en plus ou à la place de `getGainsParType()`) et `TransactionModel::getMontantsAEnvoyerParOperateur()`
+
+- [ ] **Vues admin (mise à jour)**
+  - `prefixes.php` — ajoute une colonne "Type" (Notre opérateur / Autre) et "Commission %" dans le tableau + les champs correspondants dans le formulaire d'ajout/édition
+  - `dashboard.php` — 2 blocs de cards distincts ("Notre opérateur" vs "Autres opérateurs" pour les gains), + un nouveau tableau "Montants à envoyer par opérateur" (nom de l'opérateur, montant total, à régler)
+
+---
+
+## ETU003929 (Frontend + Côté Client) — Version 2
+
+### Opérations (extension du transfert)
+
+- [ ] **`ClientController::transfert()`** (GET) — le formulaire ajoute un choix radio "Frais en plus" (défaut) / "Frais inclus dans le montant"
+- [ ] **`ClientController::storeTransfert()`** (POST) — extension
+  - Reçoit en plus `frais_inclus` (0/1)
+  - Appelle `PrefixeModel::getAutreOperateur($telephoneDestinataire)` pour savoir si c'est un transfert externe
+  - Appelle `calculerFraisTransfert($montant, $autreOperateur, $fraisInclus)` au lieu de l'ancien calcul simple
+  - Vérifie `solde émetteur >= montant_debite`
+  - Débite l'émetteur de `montant_debite`, crédite le destinataire de `montant_recu`
+  - Enregistre les 2 écritures avec `prefixe_id` (si externe), `commission`, `frais_inclus` renseignés
+
+- [ ] **`app/Views/client/transfert.php`** (mise à jour) — radio "frais en plus / frais inclus", aperçu AJAX mis à jour pour afficher `montant_debite` ET `montant_recu` selon le mode choisi
+
+### Envoi multiple (nouveau)
+
+- [ ] **`ClientController::envoiMultiple()`** (GET) — affiche le formulaire (montant total + liste de numéros dynamique)
+- [ ] **`ClientController::storeEnvoiMultiple()`** (POST)
+  - Reçoit `montant_total` et un tableau `telephones[]`
+  - Calcule la part par destinataire : `$part = $montantTotal / count($telephones)` (arrondi à définir — proposition : dernier destinataire récupère le reliquat pour que la somme des parts égale exactement le montant total)
+  - Pour chaque destinataire : calcule `calculerFraisTransfert()` sur sa part, vérifie l'existence du compte (`CompteModel::findByTelephone()`)
+  - Vérifie que le solde de l'émetteur couvre la **somme de tous les `montant_debite`** avant d'exécuter quoi que ce soit
+  - Exécute la boucle de mini-transferts dans une transaction SQL atomique : `$db->transStart()` ... boucle `crediter()`/`debiter()`/`enregistrer()` ... `$db->transComplete()` — si un seul échoue, tout est annulé (`transStatus()`)
+  - Génère un `groupe_envoi_id` unique (ex: `uniqid()` ou `bin2hex(random_bytes(8))`) commun à toutes les lignes de cet envoi
+
+- [ ] **`app/Views/client/envoi_multiple.php`** (nouveau)
+  - Champ `montant_total`
+  - Liste de champs téléphone ajoutable/supprimable dynamiquement (JS)
+  - Aperçu AJAX de la part + frais par destinataire avant confirmation
+  - Modal de confirmation récapitulant tous les destinataires et montants avant envoi définitif
+
+### Historique (extension)
+
+- [ ] **`app/Views/client/historique.php`** (mise à jour) — les lignes partageant un même `groupe_envoi_id` sont regroupées visuellement (ex: bordure commune ou libellé "Envoi multiple #xxx" avec sous-liste des destinataires)
+
+### UI / UX / JS (extension)
+
+- [ ] **`public/assets/js/client.js`** — nouvelles fonctions
+  - `addDestinataireField()` — ajoute dynamiquement un champ numéro de téléphone dans le formulaire d'envoi multiple
+  - `removeDestinataireField(index)` — retire un champ
+  - `previewFraisTransfert(montant, telephoneDest, fraisInclus)` — remplace/étend `previewFrais()` pour le transfert, appelle `api/calculer-frais` avec les nouveaux paramètres, affiche `montant_debite` et `montant_recu`
+  - `previewEnvoiMultiple(montantTotal, telephones[])` — calcule et affiche la part + frais estimés par destinataire avant soumission
+
+---
 
 ## Changements de base de données pour la V2
 
 ```sql
--- Distinguer notre opérateur des autres opérateurs, et leur commission
 ALTER TABLE prefixes ADD COLUMN est_operateur_principal INTEGER NOT NULL DEFAULT 1
     CHECK (est_operateur_principal IN (0, 1));
 ALTER TABLE prefixes ADD COLUMN commission_pourcentage REAL NOT NULL DEFAULT 0
     CHECK (commission_pourcentage >= 0);
 
--- Tracer, pour chaque transaction, l'autre opérateur concerné (si transfert externe)
--- et la commission prélevée séparément des frais normaux
 ALTER TABLE transactions ADD COLUMN prefixe_id INTEGER REFERENCES prefixes(id);
 ALTER TABLE transactions ADD COLUMN commission REAL NOT NULL DEFAULT 0
     CHECK (commission >= 0);
 ALTER TABLE transactions ADD COLUMN frais_inclus INTEGER NOT NULL DEFAULT 0
     CHECK (frais_inclus IN (0, 1));
-
--- Regrouper les lignes d'un même envoi multiple (pour les retrouver ensemble à l'affichage)
 ALTER TABLE transactions ADD COLUMN groupe_envoi_id TEXT;
 ```
 
-Note : les préfixes 033/037 existants gardent `est_operateur_principal = 1` (valeur par défaut). Il faudra insérer les nouveaux préfixes externes (032, 031…) avec `est_operateur_principal = 0` et leur `commission_pourcentage`.
-
-## ETU004190 — Tâches V2 (backend/opérateur)
-
-- [ ] `PrefixeModel` : ajouter `getAutreOperateur(string $numero): ?array`, `getAutresOperateurs(): array`
-- [ ] `TransactionModel` : ajouter `getGainsParOperateur()`, `getMontantsAEnvoyerParOperateur()`
-- [ ] `operation_helper.php` : ajouter `calculerFraisTransfert()`
-- [ ] `Api/FraisController::calculer()` : étendre pour accepter `telephone_dest` et `frais_inclus`
-- [ ] Étendre `AdminController::prefixes()` pour gérer `est_operateur_principal` et `commission_pourcentage`
-- [ ] Étendre `AdminController::dashboard()` avec `getGainsParOperateur()` + `getMontantsAEnvoyerParOperateur()`
-- [ ] Mettre à jour `admin/dashboard.php` : 2 blocs de cards ("Notre opérateur" / "Autres opérateurs") + tableau "Montants à envoyer par opérateur"
-- [ ] Ajouts `script.sql` (voir section "Changements de base de données pour la V2")
-
-## ETU003929 — Tâches V2 (frontend/client)
-
-- [ ] `ClientController::transfert()` : ajouter le choix "Frais en plus" / "Frais inclus" (radio button)
-- [ ] `ClientController::storeTransfert()` : gérer le paramètre `frais_inclus`, appeler `calculerFraisTransfert()`
-- [ ] `ClientController::envoiMultiple()` (GET) / `storeEnvoiMultiple()` (POST) : split du montant total, vérification du solde total, boucle de mini-transferts atomique (`$db->transStart()` / `transComplete()`), `groupe_envoi_id` commun
-- [ ] Vue `client/envoi_multiple.php` : montant total + liste de numéros ajoutable/supprimable en JS + aperçu AJAX de la part par destinataire
-- [ ] Regrouper visuellement les lignes d'un même envoi multiple dans `historique.php`
-- [ ] JS : `addDestinataireField()` / `removeDestinataireField()`, adapter `previewFrais()` au mode frais inclus/en plus
+Note : les préfixes 033/037 existants gardent `est_operateur_principal = 1` (valeur par défaut). Insérer les nouveaux préfixes externes (032, 031…) avec `est_operateur_principal = 0` et leur `commission_pourcentage`.
 
 ## Fonctionnalités à développer pour la Version 2
 
