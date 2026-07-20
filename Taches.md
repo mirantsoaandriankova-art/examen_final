@@ -1,112 +1,153 @@
 # Tâches.md - Projet Simulateur Mobile Money (Version 1)
 
 **Équipe :** ETU003929 et ETU004190
-**Technologies :** PHP + CodeIgniter 4, SQLite, HTML/CSS/JS, Bootstrap  
+**Technologies :** PHP + CodeIgniter 4, SQLite, HTML/CSS/JS, Bootstrap
 **Durée :** 4 heures
-
-## Répartition des tâches 
-### ETU004190(Backend + Opérateur)
-**Responsable principal :** Côté Opérateur + Base de données + Authentification
-
-#### Tâches à réaliser :
-
-1. **Initialisation du projet CodeIgniter 4**
-   - Installation et configuration de base
-   - Configuration de SQLite (database.php)
-   - Création des dossiers nécessaires
-
-2. **Base de données (Migrations + Models)**
-   - Création des tables :
-     - `prefixes_operateur` (id, prefixe)
-     - `types_operation` (id, nom, description)
-     - `baremes_frais` (id, type_operation_id, tranche_min, tranche_max, frais)
-     - `comptes` (id, telephone, solde, created_at, updated_at)
-     - `transactions` (id, type, telephone_source, telephone_dest, montant, frais, montant_total, date, statut)
-     - `gains_operateur` (vue ou table pour suivi des gains)
-
-3. **Côté Opérateur (Admin)**
-   - Routes et Controller `AdminController`
-   - Gestion des préfixes (CRUD)
-   - Gestion des types d'opérations et barèmes de frais (CRUD avec tranches)
-   - Dashboard Opérateur :
-     - Situation des gains (retraits + transferts)
-     - Liste des comptes clients (solde, téléphone)
-     - Historique global des transactions
-
-4. **Authentification & Sécurité**
-   - Login automatique par numéro de téléphone (session)
-   - Middleware pour séparer Client / Opérateur
-   - Validation des numéros selon préfixes
-
-5. **Fonctions métier communes**
-   - Calcul des frais selon barème
-   - Enregistrement des transactions
-   - Mise à jour des soldes
+**Date :** 20 juillet 2026
 
 ---
+
+## Todo List
+
+### Travaux communs
+
+- [ ] Créer le projet CodeIgniter 4
+- [ ] Configuration SQLite (base.db)
+- [ ] Créer le fichier base.sql avec le schéma mis à jour
+- [ ] Ajouter l'authentification automatique par numéro
+- [ ] Créer le layout Bootstrap + design mobile-first
+
+### ETU004190 (Backend + Opérateur)
+
+- [ ] Créer tous les Models
+- [ ] Implémenter le calcul automatique des frais selon barème
+- [ ] CRUD Préfixes
+- [ ] CRUD Types d'opérations + Barèmes de frais
+- [ ] Dashboard Admin (gains par type d'opération, liste comptes)
+- [ ] Routes protégées Admin
+- [ ] Fonctions métier (mise à jour solde, enregistrement transaction)
 
 ### ETU003929 (Frontend + Côté Client)
-**Responsable principal :** Interface Client + Expérience utilisateur
 
-#### Tâches à réaliser :
-
-1. **Interface Client (Frontend)**
-   - Page d'accueil / Login automatique (saisie numéro)
-   - Dashboard Client (après login) :
-     - Affichage du solde
-     - Menu des opérations
-
-2. **Opérations Client**
-   - **Voir le solde** (mise à jour en temps réel)
-   - **Dépôt** (formulaire + confirmation)
-   - **Retrait** (formulaire + confirmation)
-   - **Transfert** (vers autre numéro + validation préfixe)
-   - **Historique des transactions** (filtré par client)
-
-3. **Design & UI**
-   - Utilisation de Bootstrap
-   - Design responsive et mobile-first (simulation téléphone)
-   - Messages de succès/erreur (toasts)
-   - Historique avec cartes ou tableau clair
-
-4. **JavaScript**
-   - Validation des formulaires en JS
-   - Mise à jour dynamique du solde (AJAX si possible)
-   - Confirmation avant opérations sensibles (retrait/transfert)
-
-5. **Intégration**
-   - Connexion avec les controllers du backend
-   - Affichage des données venant de l’Étudiant A
+- [ ] Page de login automatique
+- [ ] Dashboard Client (affichage solde)
+- [ ] Formulaires : Dépôt, Retrait, Transfert
+- [ ] Historique des transactions du client
+- [ ] Design responsive + messages (toasts succès/erreur)
+- [ ] Validation JS + confirmation avant retrait/transfert
+- [ ] Intégration AJAX pour mise à jour solde (optionnel)
 
 ---
 
-## Planning pour la version 1 (4 heures)
+## Planning suggéré (4 heures)
 
 **Heure 1 :**
-- 4190 → Initialisation projet + base de données + modèles
-- 3929 → Création des vues Client (HTML + Bootstrap)
+- ETU004190 → Initialisation + base.sql + Models
+- ETU003929 → Layout + Page Login + Dashboard Client
 
 **Heure 2 :**
-- 4190 → CRUD Opérateur + calcul des frais
-- 3929 → Dashboard Client + formulaires des opérations
+- ETU004190 → Calcul frais + Controllers Admin (CRUD)
+- ETU003929 → Formulaires Dépôt / Retrait / Transfert
 
 **Heure 3 :**
-- 4190 → Authentification + controllers des opérations
-- 3929 → Historique + JS + polish UI
+- ETU004190 → Auth + Transactions + Dashboard Opérateur
+- ETU003929 → Historique Client + JavaScript + UI/UX
 
 **Heure 4 :**
-- Intégration + tests croisés + corrections + préparation démo
+- Intégration + Tests + Corrections + Préparation démonstration
 
 ---
 
+## Fonctionnalités validées pour la Version 1
 
-**Fonctionnalités validées pour la version 1:**
-- [ ] Login automatique par numéro
-- [ ] Gestion des préfixes
-- [ ] Barèmes de frais configurables
-- [ ] Dépôt / Retrait / Transfert
-- [ ] Historique
-- [ ] Dashboard Opérateur (gains + comptes)
+- [x] Login automatique par numéro de téléphone (pas d'inscription)
+- [x] Gestion des préfixes opérateurs
+- [x] Barèmes de frais configurables (avec l'exemple de la photo)
+- [x] Dépôt, Retrait et Transfert fonctionnels
+- [x] Historique complet par client et global (opérateur)
+- [x] Dashboard Opérateur (situation des gains + comptes clients)
+- [x] Design mobile-first avec Bootstrap
 
 ---
-**Dernière mise à jour :** 20 juillet 2026
+## Structure du projet
+
+```text
+app/
+  Config/
+    Routes.php
+    Database.php           # Configuration SQLite (base.db)
+    Filters.php
+  Controllers/
+    ClientController.php
+    AdminController.php
+    AuthController.php
+  Filters/
+    AuthFilter.php         # Protection selon rôle (client / admin)
+  Models/
+    PrefixeModel.php
+    TypeOperationModel.php
+    BaremeFraisModel.php
+    CompteModel.php
+    TransactionModel.php
+  Views/
+    layout/
+      app.php              # Template principal
+    auth/
+      login.php
+    client/
+      dashboard.php
+      depot.php
+      retrait.php
+      transfert.php
+      historique.php
+    admin/
+      dashboard.php
+      prefixes.php
+      baremes.php
+      comptes.php
+      transactions.php
+public/
+  assets/css/style.css
+script.sql                 # Création des tables + données initiales
+base.db                    # Base SQLite (à générer)
+```
+
+---
+
+## Fichiers/classes créés
+
+### Models
+
+- **PrefixeModel.php** → Gestion des préfixes valides (033, 037…)
+- **TypeOperationModel.php** → Types d'opérations (dépôt, retrait, transfert)
+- **BaremeFraisModel.php** → Barèmes par tranche (selon l'exemple fourni)
+- **CompteModel.php** → Gestion des comptes clients (solde, téléphone)
+- **TransactionModel.php** → Historique complet des mouvements
+
+### Controllers
+
+- **AuthController.php**
+  - `login()` → Login automatique par numéro de téléphone
+  - `logout()`
+- **ClientController.php**
+  - `dashboard()` → Affichage solde + menu
+  - `depot()` / `storeDepot()`
+  - `retrait()` / `storeRetrait()`
+  - `transfert()` / `storeTransfert()`
+  - `historique()`
+- **AdminController.php**
+  - `dashboard()` → Gains + situation globale
+  - `prefixes()` → CRUD préfixes
+  - `baremes()` → CRUD barèmes de frais
+  - `comptes()` → Liste des comptes clients
+  - `transactions()` → Historique global
+
+### Filters
+
+- **AuthFilter.php** → Séparation Client / Opérateur + protection des routes
+
+### Autres
+
+- **script.sql** → Création des tables + insertion des barèmes de l'exemple photo
+- **Helpers** pour le calcul des frais selon tranche
+
