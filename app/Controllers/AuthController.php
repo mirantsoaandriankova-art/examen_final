@@ -18,11 +18,6 @@ class AuthController extends BaseController
      */
     public function showLogin()
     {
-        // Déjà connecté : on redirige directement vers le bon espace
-        if (session()->get('isLoggedIn')) {
-            return redirect()->to(session()->get('role') === 'admin' ? '/admin' : '/client');
-        }
-
         return view('auth/login', ['title' => 'Connexion — MobiMoney']);
     }
 
