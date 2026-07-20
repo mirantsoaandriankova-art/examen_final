@@ -10,7 +10,6 @@
 
 ## Règles métier importantes (à respecter par les deux)
 
-- Les **frais s'appliquent uniquement sur le retrait et le transfert**. Le dépôt est **sans frais**.
 - Pour un **transfert**, les frais sont prélevés sur le compte émetteur (débit = montant + frais). Le destinataire reçoit le montant net, sans frais.
 - Le retrait et le transfert doivent vérifier que `solde >= montant + frais` avant toute exécution.
 - Login : recherche du compte par numéro de téléphone existant dans `examenfinals4.db`. Pas de création de compte à la volée (pas d'inscription).
@@ -22,19 +21,24 @@
 
 Ces signatures sont décidées ensemble en Heure 1 pour que le développement en parallèle ne casse rien :
 
-| Fonction | Fichier | Rôle |
-|---|---|---|
-| `CompteModel::findByTelephone(string $telephone): ?array` | `app/Models/CompteModel.php` | Retrouve un compte pour le login |
-| `TransactionModel::getByCompte(int $compteId, ?int $limit = null): array` | `app/Models/TransactionModel.php` | Historique (dashboard = limit 5, historique = sans limite) |
-| `calculerFrais(string $typeOperationCode, float $montant): array` | `app/Helpers/operation_helper.php` | Retourne `['frais' => float, 'total' => float]`, `frais = 0` si dépôt |
+| Fonction                                                                    | Fichier                              | Rôle                                                                      |
+| --------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
+| `CompteModel::findByTelephone(string $telephone): ?array`                 | `app/Models/CompteModel.php`       | Retrouve un compte pour le login                                           |
+| `TransactionModel::getByCompte(int $compteId, ?int $limit = null): array` | `app/Models/TransactionModel.php`  | Historique (dashboard = limit 5, historique = sans limite)                 |
+| `calculerFrais(string $typeOperationCode, float $montant): array`         | `app/Helpers/operation_helper.php` | Retourne`['frais' => float, 'total' => float]`, `frais = 0` si dépôt |
 
 ---
 
 ## Travaux communs
 
-- [ ] Initialiser le projet CodeIgniter 4 (`composer create-project codeigniter4/appstarter`)
-- [ ] **`app/Config/Database.php`** — driver `SQLite3`, base pointant vers `writable/examenfinals4.db`
-- [ ] **`script.sql`** (racine, rempli par ETU004190) — schéma complet + données initiales
+- [X] Initialiser le projet CodeIgniter 4 (`composer create-project codeigniter4/appstarter`)
+- [X] **`app/Config/Database.php`** — driver `SQLite3`, base pointant vers `writable/examenfinals4.db`
+- [X] **`base.sql`** — schéma complet + données initiales:
+  - créer la table prefixes (id, prefixe, description, actif)
+  - créer la table types_operation (id, code, libelle, frais_applicable)
+  - créer la table baremes_frais (id, type_operation_id, montant_min, montant_max, frais, created_at)
+  - créer la table comptes (id, telephone, nom, solde, role, date_creation)
+  - créer la table transactions (id, compte_id, type_operation_id, montant, frais, solde_apres, sens, compte_lie_id, date_operation)
 - [ ] **`app/Views/layout/app.php`** — header/nav Bootstrap conditionnel selon `session('role')` (menu client vs menu admin), footer, includes CSS/JS communs
 - [ ] **`public/assets/css/style.css`** — variables de couleurs, breakpoints mobile-first
 - [ ] Valider ensemble le contrat commun ci-dessus avant de commencer le travail séparé
@@ -45,27 +49,28 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ### Models
 
-- [ ] **`app/Models/PrefixeModel.php`** — gestion des préfixes valides (033, 037…)
+- [X] **`app/Models/PrefixeModel.php`** — gestion des préfixes valides (033, 037…)
+
   - Table `prefixes` : `id`, `prefixe`, `description`, `actif`
   - `$table = 'prefixes'` ; `$allowedFields = ['prefixe', 'description', 'actif']`
   - Méthodes :
     - `getActifs(): array` — liste des préfixes actifs
     - `isPrefixeValide(string $numero): bool` — vérifie que le numéro commence par un préfixe actif (format uniquement, ne crée jamais de compte)
+- [X] **`app/Models/TypeOperationModel.php`** — types d'opérations (dépôt, retrait, transfert)
 
-- [ ] **`app/Models/TypeOperationModel.php`** — types d'opérations (dépôt, retrait, transfert)
   - Table `types_operation` : `id`, `code` (`depot`/`retrait`/`transfert`), `libelle`, `frais_applicable` (0/1)
   - Méthodes :
     - `findByCode(string $code): ?array`
     - `getAll(): array`
+- [X] **`app/Models/BaremeFraisModel.php`** — barèmes par tranche, appliqués au retrait et au transfert uniquement
 
-- [ ] **`app/Models/BaremeFraisModel.php`** — barèmes par tranche, appliqués au retrait et au transfert uniquement
   - Table `baremes_frais` : `id`, `type_operation_id`, `montant_min`, `montant_max`, `frais`
   - Méthodes :
     - `getTranche(int $typeOperationId, float $montant): ?array` — ligne du barème correspondant au montant saisi
     - `getAllByType(int $typeOperationId): array` — pour l'affichage/édition CRUD
     - CRUD standard hérité de `Model` (`insert`, `update`, `delete`)
+- [X] **`app/Models/CompteModel.php`** — comptes clients (solde, téléphone, rôle)
 
-- [ ] **`app/Models/CompteModel.php`** — comptes clients (solde, téléphone, rôle)
   - Table `comptes` : `id`, `telephone`, `nom`, `solde`, `role` (`client`/`admin`), `date_creation`
   - Méthodes :
     - `findByTelephone(string $telephone): ?array` *(contrat commun)*
@@ -73,8 +78,8 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
     - `debiter(int $compteId, float $montant): bool`
     - `getSolde(int $compteId): float`
     - `getAllClients(): array` — pour le dashboard admin et la page comptes
+- [X] **`app/Models/TransactionModel.php`** — historique complet des mouvements
 
-- [ ] **`app/Models/TransactionModel.php`** — historique complet des mouvements
   - Table `transactions` : `id`, `compte_id`, `type_operation_id`, `montant`, `frais`, `solde_apres`, `sens` (`credit`/`debit`), `compte_lie_id` (nullable, pour tracer l'autre côté d'un transfert), `date_operation`
   - Méthodes :
     - `getByCompte(int $compteId, ?int $limit = null): array` *(contrat commun)*
@@ -84,18 +89,20 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ### Logique métier / calcul des frais
 
-- [ ] **`app/Helpers/operation_helper.php`** — fonction `calculerFrais(string $typeOperationCode, float $montant): array`
+- [X] **`app/Helpers/operation_helper.php`** — fonction `calculerFrais(string $typeOperationCode, float $montant): array`
+
   - Retourne `['frais' => float, 'total' => float]`
   - Enchaîne `TypeOperationModel::findByCode()` puis `BaremeFraisModel::getTranche()`
   - Retourne `frais = 0` directement si `frais_applicable = 0` (cas dépôt)
   - Déclaré dans `app/Config/Autoload.php` (`$autoload['helper'] = ['operation']`) pour être utilisable partout, y compris par le contrôleur client
+- [X] **`app/Controllers/Api/FraisController.php`** — endpoint AJAX consommé par `previewFrais()` côté frontend
 
-- [ ] **`app/Controllers/Api/FraisController.php`** — endpoint AJAX consommé par `previewFrais()` côté frontend
   - `calculer()` — POST `api/calculer-frais`, reçoit `type_operation` + `montant`, appelle `calculerFrais()`, répond en JSON `{frais, total}`
 
 ### CRUD Admin
 
 - [ ] **`app/Controllers/AdminController.php`**
+
   - `dashboard()` — GET `/admin`, appelle `TransactionModel::getGainsParType()` + `CompteModel::getAllClients()`
   - `prefixes()` — GET `/admin/prefixes`, liste + formulaire
   - `storePrefixe()` / `updatePrefixe($id)` / `deletePrefixe($id)` — POST, CRUD via `PrefixeModel`
@@ -103,13 +110,13 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
   - `storeBareme()` / `updateBareme($id)` / `deleteBareme($id)` — POST, CRUD via `BaremeFraisModel`
   - `comptes()` — GET `/admin/comptes`, liste des comptes clients (solde, téléphone)
   - `transactions()` — GET `/admin/transactions`, historique global via `TransactionModel::getAll()`
-
 - [ ] **Vues admin** (`app/Views/admin/`)
-  - `dashboard.php` — cards gains par type d'opération + tableau des comptes
-  - `prefixes.php` — tableau + formulaire ajout/édition/suppression
-  - `baremes.php` — tableau par type d'opération + formulaire tranche (min, max, frais)
-  - `comptes.php` — tableau des comptes clients
-  - `transactions.php` — tableau de l'historique global
+
+  - `Dashboard.php` — cards gains par type d'opération + tableau des comptes
+  - `Prefixes.php` — tableau + formulaire ajout/édition/suppression
+  - `Baremes.php` — tableau par type d'opération + formulaire tranche (min, max, frais)
+  - `Comptes.php` — tableau des comptes clients
+  - `Transactions.php` — tableau de l'historique global
 
 ### Sécurité / routage
 
@@ -120,7 +127,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 
 ### Base de données
 
-- [ ] **`script.sql`** (racine)
+- [ ] **`base.sql`** (racine)
   - `CREATE TABLE prefixes (...)`, `types_operation (...)`, `baremes_frais (...)`, `comptes (...)`, `transactions (...)`
   - Vue `vue_gains_par_type` (optionnelle, `SUM(frais)` groupé)
   - Données initiales : préfixes 033/037, types dépôt/retrait/transfert, barème de l'exemple photo (dupliqué pour retrait ET transfert), quelques comptes clients de test avec solde
@@ -183,18 +190,22 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 ## Planning suggéré (4 heures)
 
 **Heure 1 :**
-- ETU004190 → Initialisation + `script.sql` + Models
+
+- ETU004190 → Initialisation + `base.sql` + Models
 - ETU003929 → Layout + `AuthController` (login/logout) + Dashboard Client
 
 **Heure 2 :**
+
 - ETU004190 → `calculerFrais()` + `Api\FraisController` + Controllers Admin (CRUD)
 - ETU003929 → Formulaires Dépôt / Retrait / Transfert (avec appel à `calculerFrais()`)
 
 **Heure 3 :**
+
 - ETU004190 → Finalisation Transactions + Dashboard Opérateur + `AuthFilter`
 - ETU003929 → Historique Client + JS (validation, confirmation, toasts, aperçu frais)
 
 **Heure 4 :**
+
 - Intégration + Tests + Corrections + Préparation démonstration
 
 ---
@@ -257,6 +268,6 @@ public/
   assets/
     css/style.css               # commun
     js/client.js                # ETU003929
-script.sql                      # ETU004190 — création des tables + données initiales
-examenfinals4.db                         # généré à partir de script.sql
+base.sql                      # ETU004190 — création des tables + données initiales
+examenfinals4.db                         # généré à partir de base.sql
 ```
