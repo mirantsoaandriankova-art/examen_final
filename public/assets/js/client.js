@@ -87,18 +87,18 @@ function initFraisPreview() {
 
   if (type === 'transfert') {
     const telephoneInput = document.getElementById('telephone_destinataire');
-    const fraisInclusInputs = document.querySelectorAll('input[name="frais_inclus"]');
+    const fraisRetraitInput = document.getElementById('inclureFraisRetrait');
     const preview = function () {
-      const fraisInclusInput = document.querySelector('input[name="frais_inclus"]:checked');
       previewFraisTransfert(
         montantInput.value,
         telephoneInput ? telephoneInput.value : '',
-        fraisInclusInput && fraisInclusInput.value === '1'
+        true,
+        fraisRetraitInput && fraisRetraitInput.checked
       );
     };
     montantInput.addEventListener('input', preview);
     if (telephoneInput) telephoneInput.addEventListener('input', preview);
-    fraisInclusInputs.forEach(function (input) { input.addEventListener('change', preview); });
+    if (fraisRetraitInput) fraisRetraitInput.addEventListener('change', preview);
     return;
   }
 
@@ -111,10 +111,12 @@ function initFraisPreview() {
   });
 }
 
-function previewFraisTransfert(montant, telephoneDest, fraisInclus) {
+function previewFraisTransfert(montant, telephoneDest, fraisInclus, inclureFraisRetrait) {
   const fraisEl = document.getElementById('previewFrais');
   const debiteEl = document.getElementById('previewDebite');
   const recuEl = document.getElementById('previewRecu');
+  const retraitEl = document.getElementById('previewRetrait');
+  const retraitInput = document.getElementById('inclureFraisRetrait');
   if (!fraisEl || !debiteEl || !recuEl) return;
 
   const montantVal = parseFloat(montant);
@@ -122,27 +124,40 @@ function previewFraisTransfert(montant, telephoneDest, fraisInclus) {
     fraisEl.textContent = '0 Ar';
     debiteEl.textContent = '0 Ar';
     recuEl.textContent = '0 Ar';
+    if (retraitEl) retraitEl.textContent = '0 Ar';
     return;
   }
 
-  fetch('/api/calculer-frais', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'type_operation=transfert&montant=' + encodeURIComponent(montantVal)
-      + '&telephone_destinataire=' + encodeURIComponent(telephoneDest)
-      + '&frais_inclus=' + (fraisInclus ? '1' : '0'),
+  requestFrais({
+    type_operation: 'transfert',
+    montant: montantVal,
+    telephone_dest: telephoneDest,
+    frais_inclus: fraisInclus ? '1' : '0',
+    inclure_frais_retrait: inclureFraisRetrait ? '1' : '0',
   })
-    .then(function (res) { return res.json(); })
     .then(function (data) {
-      const fraisTotal = Number(data.frais || 0) + Number(data.commission || 0);
+      const frais = numericValue(data.frais);
+      const commission = numericValue(data.commission);
+      const fraisTotal = frais + commission;
+      const montantDebite = numericValue(data.montant_debite, numericValue(data.total, montantVal + fraisTotal));
+      const montantRecu = numericValue(data.montant_recu, montantVal);
+      const fraisRetrait = numericValue(data.frais_retrait);
       fraisEl.textContent = formatMontant(fraisTotal) + ' Ar';
-      debiteEl.textContent = formatMontant(data.montant_debite) + ' Ar';
-      recuEl.textContent = formatMontant(data.montant_recu) + ' Ar';
+      debiteEl.textContent = formatMontant(montantDebite) + ' Ar';
+      recuEl.textContent = formatMontant(montantRecu) + ' Ar';
+      if (retraitEl) retraitEl.textContent = formatMontant(fraisRetrait) + ' Ar';
+      if (retraitInput && data.autre_operateur) {
+        retraitInput.checked = false;
+        retraitInput.disabled = true;
+      } else if (retraitInput) {
+        retraitInput.disabled = false;
+      }
     })
     .catch(function () {
       fraisEl.textContent = '—';
       debiteEl.textContent = '—';
       recuEl.textContent = '—';
+      if (retraitEl) retraitEl.textContent = '—';
     });
 }
 
@@ -159,17 +174,14 @@ function previewFrais(montant, typeOperation) {
     return;
   }
 
-  fetch('/api/calculer-frais', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'type_operation=' + encodeURIComponent(typeOperation) + '&montant=' + encodeURIComponent(montantVal),
-  })
-    .then(function (res) { return res.json(); })
+  requestFrais({ type_operation: typeOperation, montant: montantVal })
     .then(function (data) {
-      fraisEl.textContent = formatMontant(data.frais) + ' Ar';
+      const frais = numericValue(data.frais);
+      const total = numericValue(data.total, montantVal + frais);
+      fraisEl.textContent = formatMontant(frais) + ' Ar';
       const montantAffiche = typeOperation === 'depot'
-        ? montantVal - data.frais
-        : data.total;
+        ? montantVal - frais
+        : total;
       totalEl.textContent = formatMontant(montantAffiche) + ' Ar';
     })
     .catch(function () {
@@ -252,23 +264,21 @@ function previewEnvoiMultiple(montantTotal, telephones) {
 
   Promise.all(telephones.map(function (telephone, index) {
     const montantPart = part + (index === telephones.length - 1 ? reliquat : 0);
-    return fetch('/api/calculer-frais', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'type_operation=transfert&montant=' + encodeURIComponent(montantPart)
-        + '&telephone_destinataire=' + encodeURIComponent(telephone)
-        + '&frais_inclus=0',
+    return requestFrais({
+      type_operation: 'transfert',
+      montant: montantPart,
+      telephone_dest: telephone,
+      frais_inclus: '0',
     })
-      .then(function (response) { return response.json(); })
       .then(function (data) { return { telephone: telephone, part: montantPart, data: data }; });
   }))
     .then(function (resultats) {
       const totalDebite = resultats.reduce(function (total, resultat) {
-        return total + Number(resultat.data.montant_debite || 0);
+        return total + numericValue(resultat.data.montant_debite, resultat.part);
       }, 0);
       preview.innerHTML = '<div class="fw-semibold mb-2">Répartition estimée</div>'
         + resultats.map(function (resultat) {
-          const cout = Number(resultat.data.frais || 0) + Number(resultat.data.commission || 0);
+          const cout = numericValue(resultat.data.frais) + numericValue(resultat.data.commission);
           return '<div class="d-flex justify-content-between small"><span>' + resultat.telephone + '</span><span>'
             + formatMontant(resultat.part) + ' Ar, frais ' + formatMontant(cout) + ' Ar</span></div>';
         }).join('')
@@ -280,8 +290,29 @@ function previewEnvoiMultiple(montantTotal, telephones) {
     });
 }
 
-function formatMontant(n) {
-  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+function requestFrais(data) {
+  const body = new URLSearchParams(data);
+
+  return fetch('/api/calculer-frais', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    body: body.toString(),
+  }).then(function (response) {
+    if (!response.ok) throw new Error('Calcul des frais indisponible.');
+    return response.json();
+  }).then(function (data) {
+    if (data.error) throw new Error('Réponse de calcul invalide.');
+    return data;
+  });
+}
+
+function numericValue(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : (fallback === undefined ? 0 : fallback);
+}
+
+function formatMontant(value) {
+  return Math.round(numericValue(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 /* ---------- Soumission avec confirmation ---------- */

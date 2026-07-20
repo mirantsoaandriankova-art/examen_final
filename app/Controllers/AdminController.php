@@ -34,14 +34,10 @@ class AdminController extends BaseController
         $data = [
             'gains'                => $this->transactionModel->getGainsParType(),
             'situationOperateurs'  => $this->transactionModel->getSituationOperateurs(),
+            'gainsParOperateur'    => $this->transactionModel->getGainsParOperateur(),
+            'montantsAEnvoyer'     => $this->transactionModel->getMontantsAEnvoyerParOperateur(),
             'comptes'              => $this->compteModel->getAllClients(),
         ];
-        $transactionModel = new TransactionModel();
-        $compteModel      = new CompteModel();
-
-        $data['gainsParOperateur'] = $transactionModel->getGainsParOperateur();
-        $data['montantsAEnvoyer']  = $transactionModel->getMontantsAEnvoyerParOperateur();
-        $data['comptes']           = $compteModel->getAllClients();
 
         return view('admin/Dashboard', $data);
     }
@@ -50,58 +46,46 @@ class AdminController extends BaseController
 
     public function prefixes()
     {
-        $prefixeModel = new PrefixeModel();
-        $data['prefixes'] = $prefixeModel->getActifs(); // ou une méthode getAll() si tu veux voir les inactifs aussi
+        $data = [
+            'prefixes' => $this->prefixeModel->orderBy('prefixe', 'ASC')->paginate(15, 'prefixes'),
+            'pager' => $this->prefixeModel->pager,
+        ];
 
         return view('admin/Prefixes', $data);
     }
 
     public function storePrefixe()
     {
-        $prefixeModel = new PrefixeModel();
-
         $data = [
-            'prefixe'     => $this->request->getPost('prefixe'),
+            'prefixe' => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
-            'actif'       => $this->request->getPost('actif') ? 1 : 0,
+            'actif' => $this->request->getPost('actif') ? 1 : 0,
             'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
             'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
-            'prefixe'                => $this->request->getPost('prefixe'),
-            'description'            => $this->request->getPost('description'),
-            'actif'                  => $this->request->getPost('actif') ?? 1,
-            'est_operateur_principal'=> $this->request->getPost('est_operateur_principal') ?? 1,
-            'commission_pourcentage' => $this->request->getPost('commission_pourcentage') ?? 0,
         ];
 
-        if ($prefixeModel->insert($data)) {
-            return redirect()->to('/admin/prefixes')->with('success', 'Préfixe ajouté avec succès.');
+        if (! $this->prefixeModel->insert($data)) {
+            return redirect()->back()->withInput()->with('errors', $this->prefixeModel->errors());
         }
 
-        return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout du préfixe.');
+        return redirect()->to('/admin/prefixes')->with('success', 'Préfixe ajouté avec succès.');
     }
 
     public function updatePrefixe($id)
     {
-        $prefixeModel = new PrefixeModel();
-
         $data = [
-            'prefixe'     => $this->request->getPost('prefixe'),
+            'prefixe' => $this->request->getPost('prefixe'),
             'description' => $this->request->getPost('description'),
-            'actif'       => $this->request->getPost('actif') ? 1 : 0,
+            'actif' => $this->request->getPost('actif') ? 1 : 0,
             'est_operateur_principal' => $this->request->getPost('est_operateur_principal') ? 1 : 0,
             'commission_pourcentage'  => $this->request->getPost('commission_pourcentage') ?: 0,
-            'prefixe'                => $this->request->getPost('prefixe'),
-            'description'            => $this->request->getPost('description'),
-            'actif'                  => $this->request->getPost('actif') ?? 1,
-            'est_operateur_principal'=> $this->request->getPost('est_operateur_principal') ?? 1,
-            'commission_pourcentage' => $this->request->getPost('commission_pourcentage') ?? 0,
         ];
 
-        if ($prefixeModel->update($id, $data)) {
-            return redirect()->to('/admin/prefixes')->with('success', 'Préfixe mis à jour avec succès.');
+        if (! $this->prefixeModel->update($id, $data)) {
+            return redirect()->back()->withInput()->with('errors', $this->prefixeModel->errors());
         }
 
-        return redirect()->back()->withInput()->with('error', 'Erreur lors de la mise à jour.');
+        return redirect()->to('/admin/prefixes')->with('success', 'Préfixe modifié avec succès.');
     }
 
     /**
@@ -128,27 +112,29 @@ class AdminController extends BaseController
         $types = $this->typeOperationModel->getAll();
 
         $typeCode = $this->request->getGet('type');
-        $baremes  = [];
+        $baremesQuery = $this->baremeFraisModel
+            ->select('baremes_frais.*, types_operation.code as type_code, types_operation.libelle as type_libelle')
+            ->join('types_operation', 'types_operation.id = baremes_frais.type_operation_id');
 
         if ($typeCode) {
             $type = $this->typeOperationModel->findByCode($typeCode);
             if ($type) {
-                $baremes = $this->baremeFraisModel->getAllByType((int) $type['id']);
+                $baremesQuery->where('baremes_frais.type_operation_id', (int) $type['id']);
+            } else {
+                $baremesQuery->where('baremes_frais.id', 0);
             }
-        } else {
-            // Sans filtre : tout afficher, groupé par type
-            $baremes = $this->baremeFraisModel
-                ->select('baremes_frais.*, types_operation.code as type_code, types_operation.libelle as type_libelle')
-                ->join('types_operation', 'types_operation.id = baremes_frais.type_operation_id')
-                ->orderBy('types_operation.code', 'ASC')
-                ->orderBy('baremes_frais.montant_min', 'ASC')
-                ->findAll();
         }
+
+        $baremes = $baremesQuery
+            ->orderBy('types_operation.code', 'ASC')
+            ->orderBy('baremes_frais.montant_min', 'ASC')
+            ->paginate(15, 'baremes');
 
         $data = [
             'types'        => $types,
             'baremes'      => $baremes,
             'typeSelected' => $typeCode,
+            'pager'        => $this->baremeFraisModel->pager,
         ];
 
         return view('admin/Baremes', $data);
@@ -217,7 +203,11 @@ class AdminController extends BaseController
     public function comptes()
     {
         $data = [
-            'comptes' => $this->compteModel->getAllClients(),
+            'comptes' => $this->compteModel
+                ->where('role', 'client')
+                ->orderBy('solde', 'DESC')
+                ->paginate(15, 'comptes'),
+            'pager' => $this->compteModel->pager,
         ];
 
         return view('admin/Comptes', $data);
@@ -229,7 +219,14 @@ class AdminController extends BaseController
     public function transactions()
     {
         $data = [
-            'transactions' => $this->transactionModel->getAll(),
+            'transactions' => $this->transactionModel
+                ->select('transactions.*, types_operation.libelle as type_libelle, types_operation.code as type_code, comptes.telephone as telephone, comptes.nom as nom_client')
+                ->join('types_operation', 'types_operation.id = transactions.type_operation_id')
+                ->join('comptes', 'comptes.id = transactions.compte_id')
+                ->orderBy('transactions.date_operation', 'DESC')
+                ->orderBy('transactions.id', 'DESC')
+                ->paginate(15, 'transactions'),
+            'pager' => $this->transactionModel->pager,
         ];
 
         return view('admin/Transactions', $data);

@@ -40,17 +40,11 @@
       <div class="invalid-feedback" id="montantError">Montant invalide ou solde insuffisant.</div>
     </div>
 
-    <fieldset class="mb-3">
-      <legend class="form-label mb-2">Mode de frais</legend>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="frais_inclus" id="fraisEnPlus" value="0" checked>
-        <label class="form-check-label" for="fraisEnPlus">Frais en plus <span class="text-muted">(le destinataire reçoit le montant saisi)</span></label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="frais_inclus" id="fraisInclus" value="1">
-        <label class="form-check-label" for="fraisInclus">Frais inclus dans le montant <span class="text-muted">(le destinataire reçoit le montant net)</span></label>
-      </div>
-    </fieldset>
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" name="inclure_frais_retrait" id="inclureFraisRetrait" value="1">
+      <label class="form-check-label" for="inclureFraisRetrait">Prendre en charge le futur frais de retrait</label>
+      <div class="form-text">Disponible uniquement vers notre réseau. Le montant sera recalculé selon les tranches pour que le destinataire puisse retirer le montant saisi intégralement.</div>
+    </div>
 
     <div class="mm-frais-preview" id="fraisPreview">
       <div class="d-flex justify-content-between">
@@ -64,6 +58,10 @@
       <div class="d-flex justify-content-between mm-frais-total">
         <span>Montant reçu</span>
         <strong id="previewRecu">0 Ar</strong>
+      </div>
+      <div class="d-flex justify-content-between mm-frais-total" id="previewRetraitRow">
+        <span>Frais de retrait pris en charge</span>
+        <strong id="previewRetrait">0 Ar</strong>
       </div>
     </div>
 

@@ -2,11 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<h1 class="h3 mb-4">Barèmes de frais</h1>
-
-<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success"><?= esc(session()->getFlashdata('success')) ?></div>
-<?php endif; ?>
+<div class="mb-4"><h1 class="h3 mb-1">Barèmes de frais</h1><p class="text-muted mb-0">Configurez les frais appliqués à chaque tranche de montant.</p></div>
 <?php if (session()->getFlashdata('errors')): ?>
     <div class="alert alert-danger">
         <ul class="mb-0">
@@ -34,7 +30,7 @@
 <div class="row g-4">
     <!-- Formulaire d'ajout -->
     <div class="col-12 col-lg-4">
-        <div class="card">
+        <div class="card mm-admin-card">
             <div class="card-header">Ajouter une tranche</div>
             <div class="card-body">
                 <form method="post" action="<?= site_url('admin/baremes/store') ?>">
@@ -67,10 +63,10 @@
 
     <!-- Liste -->
     <div class="col-12 col-lg-8">
-        <div class="card">
-            <div class="card-header">Tranches configurées</div>
+        <div class="card mm-admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center"><span class="fw-semibold">Tranches configurées</span><span class="badge text-bg-light"><?= count($baremes) ?> affichée(s)</span></div>
             <div class="table-responsive">
-                <table class="table table-striped mb-0 align-middle">
+                <table class="table mm-table align-middle">
                     <thead>
                         <tr>
                             <?php if (empty($typeSelected)): ?>
@@ -111,11 +107,12 @@
                             <form id="<?= $formDelId ?>" method="post" action="<?= site_url('admin/baremes/delete/' . $b['id']) ?>" onsubmit="return confirm('Supprimer cette tranche ?');"><?= csrf_field() ?></form>
                         <?php endforeach; ?>
                         <?php if (empty($baremes)): ?>
-                            <tr><td colspan="5" class="text-center text-muted">Aucune tranche configurée.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4">Aucune tranche configurée.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
+            <div class="mm-pagination"><?= $pager->links('baremes', 'bootstrap_full') ?></div>
         </div>
     </div>
 </div>

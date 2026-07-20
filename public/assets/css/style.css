@@ -356,6 +356,7 @@ a { text-decoration: none; }
 
 .mm-table {
   font-size: 0.88rem;
+  margin-bottom: 0;
 }
 
 .mm-table thead th {
@@ -365,11 +366,24 @@ a { text-decoration: none; }
   text-transform: uppercase;
   letter-spacing: 0.03em;
   border-bottom: 1px solid var(--mm-border);
+  padding: 0.9rem 1rem;
+  white-space: nowrap;
 }
 
 .mm-table td {
   border-bottom: 1px solid var(--mm-border);
+  padding: 0.9rem 1rem;
+  vertical-align: middle;
 }
+
+.mm-admin-container { max-width: 1440px; }
+.mm-client-container { max-width: 720px; }
+.mm-admin-card { border: 0; box-shadow: var(--mm-shadow-sm); overflow: hidden; }
+.mm-admin-card .card-header { background: var(--mm-surface); border-bottom: 1px solid var(--mm-border); padding: 1rem 1.25rem; }
+.mm-table tbody tr { transition: background-color .15s ease; }
+.mm-table tbody tr:hover { background: rgba(26, 115, 232, .04); }
+.mm-table .form-control-sm, .mm-table .form-select-sm { min-width: 5.5rem; }
+.mm-pagination { padding: 1rem 1.25rem; border-top: 1px solid var(--mm-border); }
 
 .mm-badge-sens {
   display: inline-flex;

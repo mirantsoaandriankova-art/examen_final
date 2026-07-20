@@ -48,7 +48,7 @@
 <?php endif; ?>
 
 <main class="mm-main <?= session()->get('isLoggedIn') ? '' : 'mm-main--auth' ?>">
-  <div class="container-fluid px-3 px-md-4 py-4" style="max-width: 720px;">
+  <div class="container-fluid px-3 px-md-4 py-4 <?= session('role') === 'admin' ? 'mm-admin-container' : 'mm-client-container' ?>">
 
     <?php if (session()->getFlashdata('success')): ?>
       <div class="alert mm-alert mm-alert--success d-flex align-items-center" role="alert">
