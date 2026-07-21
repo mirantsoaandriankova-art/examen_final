@@ -126,4 +126,8 @@ class TransactionModel extends Model
             ->orderBy('prefixes.prefixe', 'ASC')
             ->findAll();
     }
+    public function enregistrerEpargne(array $data)
+    {
+        //
+    }
 }

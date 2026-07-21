@@ -94,4 +94,24 @@ class CompteModel extends Model
                     ->orderBy('solde', 'DESC')
                     ->findAll();
     }
+
+    public function crediterEpargne(int $compteId, float $montant): bool 
+    {
+        return $this->db->table('comptes')
+            ->where('id', $compteId)
+            ->set('solde_epargne', 'solde_epargne +' . $montant, false)
+            ->update();
+    }
+    public function getSoldeEpargne(int $compteId): float
+    {
+        $compte = $this->find($compteId);
+        return $compte['solde_epargne'] ?? 0;
+    }
+    public function getFullCompte(int $compteId): ?array{
+        $compte = $this->find($compteId);
+        if($compte) {
+            $compte['solde_epargne']= $this->getSoldeEpargne($compteId);
+        }
+        return $compte;
+    }
 }

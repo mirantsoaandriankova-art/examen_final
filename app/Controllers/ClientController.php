@@ -455,6 +455,21 @@ class ClientController extends BaseController
         }
     }
 
+    public function recevoirTransfert()
+    {
+        $pourcentagEpargne = (float) $this->request->getPost('pourcentage_epargne');
+        $montantRecu = $montantNet;
+        if ($pourcentagEpargne >0){
+            $pourcentagEpargne = $montantRecu * ($pourcentagEpargne / 100);
+            $montantPrincipal = $montantRecu - $montantEpargne;
+
+            $this->compteModel->crediter($compteId, $montantPrincipal);
+            $this->compteModel
+            ->crediterEpargne($compteId, $montantEpargne);
+        } else{
+            $this->compteModel->crediter($compteId, $montantRecu);
+        }
+    }
     // -------------------------------------------------
     // HISTORIQUE
     // -------------------------------------------------

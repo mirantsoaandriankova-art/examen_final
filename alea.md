@@ -121,13 +121,19 @@
     return $this->response->download($dbPath, null)->setFileName('backup_' . date('Ymd') . '.db');
     }
 
-
-
-
-
-
 promotion frais de transfert même opérateur
 
 créer en base la configuration
 
 bonus: page pour modifier la pourcentage
+
+
+notion epargne
+
+choix par client 
+
+ex: 20%
+
+nb: transfert
+
+donc a chq trasnf
