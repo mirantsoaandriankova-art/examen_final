@@ -36,6 +36,8 @@ class AdminController extends BaseController
             'situationOperateurs'  => $this->transactionModel->getSituationOperateurs(),
             'gainsParOperateur'    => $this->transactionModel->getGainsParOperateur(),
             'montantsAEnvoyer'     => $this->transactionModel->getMontantsAEnvoyerParOperateur(),
+            'transactions'         => $this->transactionModel->getAdminTransactions(),
+            'transactionsPager'    => $this->transactionModel->pager,
             'comptes'              => $this->compteModel->getAllClients(),
         ];
 

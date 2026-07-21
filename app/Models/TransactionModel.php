@@ -93,7 +93,7 @@ class TransactionModel extends Model
             ->where('prefixe_id', null)
             ->first() ?? ['total_gains' => 0, 'nombre_operations' => 0];
 
-        $externes = $this->select('prefixes.id as prefixe_id, prefixes.description as operateur, prefixes.prefixe, COALESCE(SUM(transactions.frais), 0) as total_gains, COUNT(transactions.id) as nombre_operations')
+        $externes = $this->select('prefixes.id as prefixe_id, prefixes.description as operateur, prefixes.prefixe, COALESCE(SUM(transactions.frais), 0) as total_frais, COALESCE(SUM(transactions.commission), 0) as total_commission, COALESCE(SUM(transactions.frais + transactions.commission), 0) as total_cout, COUNT(transactions.id) as nombre_operations')
             ->join('prefixes', 'prefixes.id = transactions.prefixe_id')
             ->where('transactions.sens', 'debit')
             ->groupBy('transactions.prefixe_id, prefixes.id, prefixes.description, prefixes.prefixe')
@@ -101,6 +101,20 @@ class TransactionModel extends Model
             ->findAll();
 
         return ['principal' => $principal, 'externes' => $externes];
+    }
+
+    /**
+     * Retourne l'historique complet des mouvements administratifs, paginé.
+     */
+    public function getAdminTransactions(int $perPage = 15, string $group = 'dashboard_transactions'): array
+    {
+        return $this->select('transactions.*, types_operation.libelle as type_libelle, types_operation.code as type_code, comptes.telephone as telephone, comptes.nom as nom_client, prefixes.prefixe as prefixe_externe, prefixes.description as operateur_externe')
+            ->join('types_operation', 'types_operation.id = transactions.type_operation_id')
+            ->join('comptes', 'comptes.id = transactions.compte_id')
+            ->join('prefixes', 'prefixes.id = transactions.prefixe_id', 'left')
+            ->orderBy('transactions.date_operation', 'DESC')
+            ->orderBy('transactions.id', 'DESC')
+            ->paginate($perPage, $group);
     }
 
     public function getMontantsAEnvoyerParOperateur(): array
