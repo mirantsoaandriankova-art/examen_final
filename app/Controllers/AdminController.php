@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BaremeFraisModel;
 use App\Models\CompteModel;
 use App\Models\PrefixeModel;
+use App\Models\PromotionModel;
 use App\Models\TransactionModel;
 use App\Models\TypeOperationModel;
 
@@ -232,5 +233,12 @@ class AdminController extends BaseController
         ];
 
         return view('admin/Transactions', $data);
+    }
+
+    public function promotion(){
+        $promotionModel= new PromotionModel();
+        return view ('admin/promotions', [
+            'promotions' => $promotionModel->findAll()
+        ]);
     }
 }

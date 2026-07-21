@@ -105,6 +105,7 @@ class ClientController extends BaseController
             return redirect()->to('/client/depot');
         }
 
+        //mi-crediter ny comptle client
         $this->compteModel->crediter($compteId, $montantNet);
         $soldeApres = $this->compteModel->getSolde($compteId);
 

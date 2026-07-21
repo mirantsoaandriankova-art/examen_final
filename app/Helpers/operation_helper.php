@@ -2,6 +2,7 @@
 
 use App\Models\BaremeFraisModel;
 use App\Models\TypeOperationModel;
+use App\Models\PromotionModel;
 
 if (! function_exists('calculerFrais')) {
     /**
@@ -62,13 +63,27 @@ if (! function_exists('calculerFraisTransfert')) {
             : round($montant * (float) $autreOperateur['commission_pourcentage'] / 100, 2);
         $coutTotal = $frais + $commission;
 
+        // return [
+        //     'frais' => round($frais, 2),
+        //     'commission' => $commission,
+        //     'frais_retrait' => 0.0,
+        //     'montant_debite' => round($fraisInclus ? $montant : $montant + $coutTotal, 2),
+        //     'montant_recu' => round($fraisInclus ? $montant - $coutTotal : $montant, 2),
+        //     'montant_net_apres_retrait' => round($fraisInclus ? $montant - $coutTotal : $montant, 2),
+        // ];
+        $fraisBase=calculerFrais('transfert', $montant)['frais'];
+        $promotionModel= new PromotionModel();
+        $promo=$promotionModel('transfert');
+        $reduction=0;
+        if ($promo && $autreOperateur==null){
+            $reduction=$frais * ($promo['reduction_pourcentage']/100);
+        }
+        $fraisFinal=max(0, $fraisBase - $reduction);
         return [
-            'frais' => round($frais, 2),
-            'commission' => $commission,
-            'frais_retrait' => 0.0,
-            'montant_debite' => round($fraisInclus ? $montant : $montant + $coutTotal, 2),
-            'montant_recu' => round($fraisInclus ? $montant - $coutTotal : $montant, 2),
-            'montant_net_apres_retrait' => round($fraisInclus ? $montant - $coutTotal : $montant, 2),
+            'frais' =>$fraisFinal,
+            'frais_base'=>$fraisBase,
+            'reduction_promo'=>$reduction,
+            'promotion'=>$promo
         ];
     }
 }

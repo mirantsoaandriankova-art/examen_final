@@ -173,3 +173,15 @@ INSERT INTO comptes (telephone, nom, solde, role) VALUES
 
 -- Message de confirmation
 SELECT '=== Base de données Mobile Money V2 initialisée avec succès ===' AS message;
+
+
+CREATE TABLE promotion (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    reduction_pourcentage REAL NOT NULL (reduction_pourcentage CHECK 0 AND 100),
+    type_operation_code TEXT DEFAULT 'transfert',
+    est_meme_operateur INTEGER DEFAULT 1,
+    date_debut DATETIME,
+    date_fin DATETIME,
+    actif INTEGER DEFAULT 1 CHECK (actif IN (0,1))
+);

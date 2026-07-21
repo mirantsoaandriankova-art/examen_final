@@ -155,20 +155,24 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
 ### Opérations
 
 - [X] **`ClientController::depot()`** (GET, formulaire) / **`storeDepot()`** (POST)
+
   - Valide `montant > 0`
   - Appelle `calculerFrais('depot', $montant)` ; le compte est crédité de `montant - frais`
   - `CompteModel::crediter($compteId, $montant)` puis `TransactionModel::enregistrer([...])` avec les frais
+
   - [X] **`ClientController::retrait()`** (GET) / **`storeRetrait()`** (POST)
     - Appelle le helper backend `calculerFrais('retrait', $montant)`
     - Vérifie `solde >= montant + frais`, sinon message d'erreur
     - `CompteModel::debiter()` puis `TransactionModel::enregistrer()`
 - [X] **`ClientController::transfert()`** (GET) / **`storeTransfert()`** (POST)
+
   - Reçoit `telephone_destinataire`, `montant`
   - Vérifie que le destinataire existe (`CompteModel::findByTelephone()`) et diffère de l'émetteur
   - `calculerFrais('transfert', $montant)`, vérifie le solde de l'émetteur
   - Débite l'émetteur (montant + frais), crédite le destinataire (montant net)
   - Enregistre les 2 écritures liées (`compte_lie_id` croisé) via `TransactionModel::enregistrer()`
 - [X] **Vues** — `app/Views/client/depot.php`, `retrait.php`, `transfert.php`
+
   - Affichage du solde disponible + aperçu du montant total (montant + frais) via AJAX avant confirmation
 
 ### Historique
@@ -184,7 +188,7 @@ Ces signatures sont décidées ensemble en Heure 1 pour que le développement en
   - `previewFrais(montant, typeOperation)` — `fetch('/api/calculer-frais', ...)` vers `Api\FraisController::calculer()`, met à jour l'aperçu de frais en direct
   - `confirmAction(message)` — modal Bootstrap de confirmation avant retrait/transfert
   - `showToast(type, message)` — toast Bootstrap après chaque action
-- [ ] Design responsive + intégration AJAX de mise à jour du solde (optionnel)
+- [X] Design responsive + intégration AJAX de mise à jour du solde (optionnel)
 
 ---
 
