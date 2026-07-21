@@ -13,6 +13,19 @@ document.addEventListener('DOMContentLoaded', function () {
   initFlashToasts();
 });
 
+document.getElementById('epargneSlider').addEventListener('input' , function(){
+  let pcd= this.value;
+  document.getElementById('pourcentageAffichage').textContent = pcd + '%';
+
+  let montant = parseFloat(document.getElementById('montantRecu').value);
+  let epargne = montant * (pcd /100 );
+  let principal = montant - epargne;
+
+  document.getElementById('montantPrincipal').textContent = principal.toLocaleString();
+  document.getElementById('montatnEpargne').textContent = epargne.toLocaleString();
+
+}
+);
 /* ---------- Validation téléphone ---------- */
 
 function validateTelephone(numero) {

@@ -171,17 +171,29 @@ INSERT INTO comptes (telephone, nom, solde, role) VALUES
 ('0314567890', 'Client opérateur D', 100000, 'client'),
 ('0330000000', 'Administrateur', 0, 'admin');
 
+ALTER TABLE comptes ADD COLUMN solde_epargne REAL NOT NULL DEFAULT 0 CHECK (solde_epargne >=0);
+
+CREATE TABLE epargne_transactions (
+    id INTEGER PRIMARY KEY,
+    compte_id INTEGER,
+    montant REAL,
+    type TEXT,
+    date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (compte_id) REFERENCES comptes(id)
+);
+
 -- Message de confirmation
 SELECT '=== Base de données Mobile Money V2 initialisée avec succès ===' AS message;
 
 
-CREATE TABLE promotion (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT NOT NULL,
-    reduction_pourcentage REAL NOT NULL (reduction_pourcentage CHECK 0 AND 100),
-    type_operation_code TEXT DEFAULT 'transfert',
-    est_meme_operateur INTEGER DEFAULT 1,
-    date_debut DATETIME,
-    date_fin DATETIME,
-    actif INTEGER DEFAULT 1 CHECK (actif IN (0,1))
-);
+-- CREATE TABLE promotion (
+--     id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     nom TEXT NOT NULL,
+--     reduction_pourcentage REAL NOT NULL (reduction_pourcentage CHECK 0 AND 100),
+--     type_operation_code TEXT DEFAULT 'transfert',
+--     est_meme_operateur INTEGER DEFAULT 1,
+--     date_debut DATETIME,
+--     date_fin DATETIME,
+--     actif INTEGER DEFAULT 1 CHECK (actif IN (0,1))
+-- );
+

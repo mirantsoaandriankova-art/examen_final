@@ -31,6 +31,13 @@
       <div class="invalid-feedback" id="destinataireError">Numéro invalide.</div>
     </div>
 
+    <div class="form-group">
+      <label>Pourcentage à mettre en Epargne :</label>
+      <input type="range" name="pourcentage_epargne" min='0' max='100' value='0' id="epargneSlider">
+      <span id="pourcentageAffichage">0%</span>
+      <p>Solde principale : <strong id="montantPrincipal">XXX</strong>Ar</p>
+      <p>Epargne : <strong id="montantEpargne">XXX</strong>Ar </p>
+    </div>
     <div class="mb-3">
       <label for="montant" class="form-label">Montant à transférer</label>
       <div class="input-group mm-input-group">

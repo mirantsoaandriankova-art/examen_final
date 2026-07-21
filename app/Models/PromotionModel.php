@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PromotionModel extends Model
 {
-    protected $table=promotion;
+    protected $table='promotion';
     protected $allowedFields = [
         'nom',
         'reduction_pourcentage',
